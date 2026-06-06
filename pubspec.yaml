@@ -1,0 +1,36 @@
+name: portfolio
+description: "A modern, responsive, and premium portfolio website for Anandhu Anil built using Flutter Web."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Typography
+  google_fonts: ^6.2.1
+
+  # Interactive animations and hover reveals
+  flutter_animate: ^4.5.0
+
+  # URL launching for social links and contact
+  url_launcher: ^6.2.5
+
+
+  # State management for layout offsets and navigation scrolling
+  provider: ^6.1.2
+
+  # Viewport visibility tracking for scroll-triggered animation
+  visibility_detector: ^0.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,117 @@
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import 'glass_container.dart';
+
+class SkillCard extends StatefulWidget {
+  final String name;
+  final double percentage;
+  final IconData icon;
+  final Color accentColor;
+
+  const SkillCard({
+    super.key,
+    required this.name,
+    required this.percentage,
+    required this.icon,
+    required this.accentColor,
+  });
+
+  @override
+  State<SkillCard> createState() => _SkillCardState();
+}
+
+class _SkillCardState extends State<SkillCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.translationValues(0.0, _isHovered ? -8.0 : 0.0, 0.0),
+        child: GlassContainer(
+          borderColor: _isHovered ? widget.accentColor.withValues(alpha: 0.8) : AppTheme.glassBorder,
+          boxShadow: _isHovered 
+              ? AppTheme.neonShadow(color: widget.accentColor, blur: 14.0)
+              : AppTheme.glassShadow(),
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: widget.accentColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      widget.icon,
+                      size: 28,
+                      color: widget.accentColor,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      widget.name,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Proficiency',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    '${(widget.percentage * 100).toInt()}%',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: widget.accentColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: widget.percentage),
+                  duration: const Duration(milliseconds: 1200),
+                  curve: Curves.easeOutSine,
+                  builder: (context, value, child) {
+                    return LinearProgressIndicator(
+                      value: value,
+                      backgroundColor: const Color(0xFF1E293B),
+                      valueColor: AlwaysStoppedAnimation<Color>(widget.accentColor),
+                      minHeight: 7,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Anandhu Anil portfolio - Computer Engineering student and Flutter developer from Kerala, India. Projects, skills, certificates, experience, resume, and contact links.">
+  <meta name="keywords" content="Anandhu Anil, Flutter Developer, Computer Engineering Student, Portfolio, Kerala Developer, Dart, React, Firebase">
+  <meta name="author" content="Anandhu Anil">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Anandhu Anil | Flutter Developer Portfolio">
+  <meta property="og:description" content="A LinkedIn-ready portfolio with projects, skills, certificates, experience, resume, and contact details.">
+  <meta property="og:site_name" content="Anandhu Anil Portfolio">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Anandhu Anil | Flutter Developer Portfolio">
+  <meta name="twitter:description" content="Projects, skills, certificates, experience, resume, and contact details in one portfolio.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Anandhu Anil Portfolio">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" sizes="32x32"/>
+
+  <title>Anandhu Anil | Flutter Developer Portfolio</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Premium preloader CSS styling -->
+  <style>
+    body {
+      background-color: #0B0F19;
+      margin: 0px;
+      padding: 0px;
+      overflow: hidden;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      background: radial-gradient(circle at center, #151B2C 0%, #0B0F19 100%);
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 4px solid rgba(168, 85, 247, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid #38BDF8;
+      border-bottom: 4px solid #A855F7;
+      animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2), 0 0 30px rgba(168, 85, 247, 0.2);
+    }
+
+    .loading-text {
+      margin-top: 28px;
+      font-size: 1.25rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      color: #F3F4F6;
+      text-transform: uppercase;
+      animation: pulse 2s ease-in-out infinite;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: #94A3B8;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Transition out when app loaded */
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.5s ease-out;
+      pointer-events: none;
+    }
+  </style>
+  <script>
+    // Loading google fonts dynamically so browser caches them during flutter initialization
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap';
+    document.head.appendChild(link);
+  </script>
+</head>
+<body>
+  <!-- Custom Splash Preloader -->
+  <div id="loading-indicator" class="loading-container">
+    <div class="loader"></div>
+    <div class="loading-text">Anandhu Anil</div>
+    <div class="subtitle">Computer Engineering Student & Flutter Developer</div>
+  </div>
+
+  <script src="flutter_bootstrap.js" async></script>
+
+  <script>
+    window.addEventListener('load', function() {
+      var loader = document.getElementById('loading-indicator');
+      
+      // 1. Detect if running via file:// protocol
+      if (window.location.protocol === 'file:') {
+        var warningDiv = document.createElement('div');
+        warningDiv.style.margin = '30px';
+        warningDiv.style.padding = '20px';
+        warningDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+        warningDiv.style.border = '1px solid #EF4444';
+        warningDiv.style.borderRadius = '12px';
+        warningDiv.style.color = '#FCA5A5';
+        warningDiv.style.fontFamily = "'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+        warningDiv.style.maxWidth = '500px';
+        warningDiv.style.textAlign = 'center';
+        warningDiv.style.lineHeight = '1.6';
+        warningDiv.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.2)';
+        warningDiv.style.zIndex = '9999';
+        
+        warningDiv.innerHTML = `
+          <h3 style="margin-top: 0; color: #EF4444; font-size: 1.35rem; font-weight: 600; letter-spacing: 0.05em;">Web Server Required</h3>
+          <p style="margin: 10px 0 16px 0; font-size: 0.95rem;">You opened this website directly from your file manager (<code>file://</code>). Flutter Web apps cannot run this way due to browser security restrictions.</p>
+          <p style="margin: 0; font-size: 0.9rem;">To run the project, please open your terminal in this directory and execute:<br>
+          <strong style="color: #38BDF8; font-family: monospace; display: block; margin-top: 8px; font-size: 1rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">flutter run -d chrome</strong></p>
+        `;
+        loader.appendChild(warningDiv);
+        
+        // Hide the loading spinner to emphasize the message
+        var spinner = loader.querySelector('.loader');
+        if (spinner) spinner.style.display = 'none';
+        return;
+      }
+
+      function removeLoader() {
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(function() {
+            if (loader.parentNode) {
+              loader.parentNode.removeChild(loader);
+            }
+          }, 500);
+        }
+      }
+
+      // 2. Check if flutter app is already loaded/rendered (prevents race condition)
+      var existingApp = document.querySelector('flutter-view') || document.querySelector('flt-glass-pane');
+      if (existingApp) {
+        removeLoader();
+        return;
+      }
+      
+      // 3. Observe body mutations to detect when the app starts
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.addedNodes) {
+            mutation.addedNodes.forEach(function(node) {
+              var isFlutter = node.tagName && 
+                (node.tagName.toLowerCase() === 'flutter-view' || 
+                 node.tagName.toLowerCase() === 'flt-glass-pane');
+              if (isFlutter) {
+                removeLoader();
+                observer.disconnect();
+              }
+            });
+          }
+        });
+      });
+      observer.observe(document.body, { childList: true });
+      
+      // 4. Safe timeout fallback in case of loading issues or slow networks
+      setTimeout(function() {
+        var app = document.querySelector('flutter-view') || document.querySelector('flt-glass-pane');
+        if (app) {
+          removeLoader();
+          observer.disconnect();
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>
