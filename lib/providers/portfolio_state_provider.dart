@@ -77,6 +77,32 @@ class PortfolioStateProvider extends ChangeNotifier {
       } catch (_) {}
     }
 
+    // 3. Merge fail-safe: restore base64 data for certificates if empty in the database
+    if (loaded) {
+      final restoredCerts = _state.certifications.map((cert) {
+        if (cert.imageBase64.isEmpty || cert.pdfBase64.isEmpty) {
+          try {
+            final defCert = PortfolioData.certifications.firstWhere(
+              (d) => d.title == cert.title,
+            );
+            return CertificationModel(
+              title: cert.title,
+              issuingOrganization: cert.issuingOrganization,
+              imageBase64: cert.imageBase64.isEmpty ? defCert.imageBase64 : cert.imageBase64,
+              pdfBase64: cert.pdfBase64.isEmpty ? defCert.pdfBase64 : cert.pdfBase64,
+              pdfUrl: cert.pdfUrl,
+              credentialUrl: cert.credentialUrl,
+              date: cert.date,
+            );
+          } catch (_) {
+            return cert;
+          }
+        }
+        return cert;
+      }).toList();
+      _state = _state.copyWith(certifications: restoredCerts);
+    }
+
     // 4. Default hardcoded fallback
     if (!loaded) {
       _loadDefaults();
@@ -150,11 +176,11 @@ class PortfolioStateProvider extends ChangeNotifier {
       return CertificationModel(
         title: e.title,
         issuingOrganization: e.issuingOrganization,
-        imageBase64: '',
-        pdfBase64: '',
-        pdfUrl: '',
+        imageBase64: e.imageBase64,
+        pdfBase64: e.pdfBase64,
+        pdfUrl: e.pdfUrl,
         credentialUrl: e.credentialUrl,
-        date: 'Ongoing',
+        date: e.date.isNotEmpty ? e.date : 'Ongoing',
       );
     }).toList();
 

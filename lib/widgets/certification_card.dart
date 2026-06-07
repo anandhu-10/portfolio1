@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/portfolio_state_model.dart';
 import '../theme/app_theme.dart';
+import '../utils/pdf_download_helper.dart';
 import 'glass_container.dart';
 
 class CertificationCard extends StatefulWidget {
@@ -28,6 +29,94 @@ class _CertificationCardState extends State<CertificationCard> {
     } catch (e) {
       debugPrint('Could not launch $url: $e');
     }
+  }
+
+  void _showCertificateLightbox(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
+              Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 600, maxWidth: 800),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: InteractiveViewer(
+                      panEnabled: true,
+                      boundaryMargin: const EdgeInsets.all(20),
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: Image.memory(
+                          base64Decode(widget.certification.imageBase64.split(',').last),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: CircleAvatar(
+                  backgroundColor: Colors.black.withOpacity(0.6),
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              ),
+              if (widget.certification.pdfBase64.isNotEmpty)
+                Positioned(
+                  bottom: 24,
+                  child: ElevatedButton.icon(
+                    onPressed: () => downloadPdfFile(widget.certification),
+                    icon: const Icon(Icons.download_rounded, size: 18),
+                    label: const Text(
+                      'Download PDF',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.secondary,
+                      foregroundColor: AppTheme.primary,
+                      elevation: 8,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -113,7 +202,9 @@ class _CertificationCardState extends State<CertificationCard> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        if (widget.certification.pdfBase64.isNotEmpty) {
+                        if (widget.certification.imageBase64.isNotEmpty) {
+                          _showCertificateLightbox(context);
+                        } else if (widget.certification.pdfBase64.isNotEmpty) {
                           _launchUrl(widget.certification.pdfBase64);
                         } else {
                           _launchUrl(widget.certification.credentialUrl);
@@ -133,7 +224,9 @@ class _CertificationCardState extends State<CertificationCard> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            widget.certification.pdfBase64.isNotEmpty ? 'View Certificate' : 'Credential',
+                            (widget.certification.imageBase64.isNotEmpty || widget.certification.pdfBase64.isNotEmpty) 
+                                ? 'View Certificate' 
+                                : 'Credential',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
