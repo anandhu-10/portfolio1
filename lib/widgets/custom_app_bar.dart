@@ -74,23 +74,41 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               // Navigation Items (Desktop & Tablet)
               if (ResponsiveLayout.isDesktop(context) || ResponsiveLayout.isTablet(context))
                 Row(
-                  children: List.generate(scrollProvider.sectionNames.length, (index) {
-                    final name = scrollProvider.sectionNames[index];
-                    final isActive = activeSection == index;
-                    return _NavBarItem(
-                      name: name,
-                      isActive: isActive,
-                      onTap: () => scrollProvider.scrollToSection(index),
-                    );
-                  }),
+                  children: [
+                    ...List.generate(scrollProvider.sectionNames.length, (index) {
+                      final name = scrollProvider.sectionNames[index];
+                      final isActive = activeSection == index;
+                      return _NavBarItem(
+                        name: name,
+                        isActive: isActive,
+                        onTap: () => scrollProvider.scrollToSection(index),
+                      );
+                    }),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.settings_outlined, size: 20, color: AppTheme.textSecondary),
+                      tooltip: 'Admin Settings',
+                      onPressed: () => Navigator.pushNamed(context, '/admin'),
+                    ),
+                  ],
                 )
               else
-                // Mobile Drawer Trigger
-                IconButton(
-                  icon: const Icon(Icons.menu_rounded, size: 28, color: Colors.white),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.settings_outlined, size: 20, color: AppTheme.textSecondary),
+                      tooltip: 'Admin Settings',
+                      onPressed: () => Navigator.pushNamed(context, '/admin'),
+                    ),
+                    const SizedBox(width: 8),
+                    // Mobile Drawer Trigger
+                    IconButton(
+                      icon: const Icon(Icons.menu_rounded, size: 28, color: Colors.white),
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                    ),
+                  ],
                 ),
             ],
           ),

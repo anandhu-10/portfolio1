@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/certification.dart';
-import '../models/project.dart';
+import '../models/portfolio_state_model.dart';
 
 class PortfolioData {
   static const String name = 'Anandhu Anil';
@@ -51,66 +50,78 @@ class PortfolioData {
     {'name': 'REST APIs', 'percentage': 0.85, 'icon': Icons.lan, 'color': Color(0xFF14B8A6)},
   ];
 
-  static const List<Project> projects = [
-    Project(
+  static final List<ProjectModel> projects = [
+    ProjectModel(
       title: 'Hygieno',
       subtitle: 'Community Waste Management App',
       description:
           'A platform for citizens to request waste pickup, report issues, and help local administrative teams manage cleaner public spaces with faster follow-up.',
-      technologies: ['React', 'Node.js', 'MongoDB', 'CSS', 'Vercel'],
-      imageUrl: '',
+      technologies: const ['React', 'Node.js', 'MongoDB', 'CSS', 'Vercel'],
+      imageBase64: '',
       githubUrl: githubUrl,
       liveUrl: 'https://hygieno-waste.vercel.app',
       category: 'Full Stack',
     ),
-    Project(
+    ProjectModel(
       title: 'Haritha Karma Sena Web',
       subtitle: 'Waste Management Awareness Portal',
       description:
           'A responsive awareness portal for waste segregation, local schedules, service information, and community education around responsible disposal.',
-      technologies: ['HTML', 'CSS', 'JavaScript', 'Responsive UI'],
-      imageUrl: '',
+      technologies: const ['HTML', 'CSS', 'JavaScript', 'Responsive UI'],
+      imageBase64: '',
       githubUrl: githubUrl,
       liveUrl: 'https://haritha-karma.vercel.app',
       category: 'Web',
     ),
-    Project(
+    ProjectModel(
       title: 'EduSphere',
       subtitle: 'Student Collaboration Dashboard',
       description:
           'A Flutter app concept for attendance, task tracking, notices, resources, and student productivity workflows with Firebase-ready architecture.',
-      technologies: ['Flutter', 'Dart', 'Firebase', 'Provider', 'Material 3'],
-      imageUrl: '',
+      technologies: const ['Flutter', 'Dart', 'Firebase', 'Provider', 'Material 3'],
+      imageBase64: '',
       githubUrl: githubUrl,
       liveUrl: githubUrl,
       category: 'Flutter',
     ),
   ];
 
-  static const List<Certification> certifications = [
-    Certification(
+  static final List<CertificationModel> certifications = [
+    CertificationModel(
       title: 'AI Prompting & Engineering Certificate',
       issuingOrganization: 'Google Cloud / Coursera',
-      imageUrl: '',
+      imageBase64: '',
+      pdfBase64: '',
+      pdfUrl: '',
       credentialUrl: 'https://coursera.org',
+      date: 'Ongoing',
     ),
-    Certification(
+    CertificationModel(
       title: 'Flutter & Dart Course Completion',
       issuingOrganization: 'Udemy / London App Brewery',
-      imageUrl: '',
+      imageBase64: '',
+      pdfBase64: '',
+      pdfUrl: '',
       credentialUrl: 'https://udemy.com',
+      date: 'Ongoing',
     ),
-    Certification(
+    CertificationModel(
       title: 'LinkedIn Learning Certificates',
       issuingOrganization: 'LinkedIn Learning',
-      imageUrl: '',
+      imageBase64: '',
+      pdfBase64: '',
+      pdfUrl: '',
       credentialUrl: 'https://linkedin.com',
+      date: 'Ongoing',
     ),
-    Certification(
+    CertificationModel(
       title: 'Project Expo Participation Certificate',
       issuingOrganization: 'State Technical Expo Committee',
-      imageUrl: '',
+      imageBase64: '',
+      pdfBase64: '',
+      pdfUrl: '',
       credentialUrl: githubUrl,
+      date: 'Ongoing',
     ),
   ];
 

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../data/portfolio_data.dart';
+import 'package:provider/provider.dart';
+import '../models/portfolio_state_model.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive_layout.dart';
+import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/glass_container.dart';
 
 class AboutSection extends StatelessWidget {
@@ -10,6 +13,8 @@ class AboutSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final about = stateProvider.state.about;
     final size = MediaQuery.of(context).size;
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final isTablet = ResponsiveLayout.isTablet(context);
@@ -25,7 +30,7 @@ class AboutSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section Title Header
-          _buildHeader(),
+          _buildHeader(context, stateProvider, about),
           const SizedBox(height: 48),
           
           // Responsive Content layout
@@ -35,16 +40,16 @@ class AboutSection extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 6,
-                  child: _buildBioCard(context),
+                  child: _buildBioCard(context, about),
                 ),
                 const SizedBox(width: 32),
                 Expanded(
                   flex: 4,
                   child: Column(
                     children: [
-                      _buildEducationCard(context),
+                      _buildEducationCard(context, about),
                       const SizedBox(height: 24),
-                      _buildGoalsCard(context),
+                      _buildGoalsCard(context, about),
                     ],
                   ),
                 ),
@@ -52,25 +57,25 @@ class AboutSection extends StatelessWidget {
             ),
             tablet: Column(
               children: [
-                _buildBioCard(context),
+                _buildBioCard(context, about),
                 const SizedBox(height: 24),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildEducationCard(context)),
+                    Expanded(child: _buildEducationCard(context, about)),
                     const SizedBox(width: 24),
-                    Expanded(child: _buildGoalsCard(context)),
+                    Expanded(child: _buildGoalsCard(context, about)),
                   ],
                 ),
               ],
             ),
             mobile: Column(
               children: [
-                _buildBioCard(context),
+                _buildBioCard(context, about),
                 const SizedBox(height: 24),
-                _buildEducationCard(context),
+                _buildEducationCard(context, about),
                 const SizedBox(height: 24),
-                _buildGoalsCard(context),
+                _buildGoalsCard(context, about),
               ],
             ),
           ),
@@ -79,15 +84,15 @@ class AboutSection extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, PortfolioStateProvider provider, AboutModel about) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.account_circle_outlined, color: AppTheme.primary, size: 20),
-            SizedBox(width: 10),
-            Text(
+            const Icon(Icons.account_circle_outlined, color: AppTheme.primary, size: 20),
+            const SizedBox(width: 10),
+            const Text(
               'ABOUT ME',
               style: TextStyle(
                 fontSize: 14,
@@ -96,6 +101,16 @@ class AboutSection extends StatelessWidget {
                 letterSpacing: 2,
               ),
             ),
+            if (provider.editMode)
+              EditSectionButton(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => EditAboutDialog(
+                    initialAbout: about,
+                    onSave: (a) => provider.updateAbout(a),
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),
@@ -111,7 +126,7 @@ class AboutSection extends StatelessWidget {
     ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0, duration: 400.ms);
   }
 
-  Widget _buildBioCard(BuildContext context) {
+  Widget _buildBioCard(BuildContext context, AboutModel about) {
     return GlassContainer(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -127,18 +142,18 @@ class AboutSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            PortfolioData.aboutOne,
-            style: TextStyle(
+          Text(
+            about.aboutOne,
+            style: const TextStyle(
               fontSize: 15.5,
               color: AppTheme.textSecondary,
               height: 1.7,
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            PortfolioData.aboutTwo,
-            style: TextStyle(
+          Text(
+            about.aboutTwo,
+            style: const TextStyle(
               fontSize: 15.5,
               color: AppTheme.textSecondary,
               height: 1.7,
@@ -151,7 +166,7 @@ class AboutSection extends StatelessWidget {
             spacing: 24,
             runSpacing: 16,
             children: [
-              for (final fact in PortfolioData.quickFacts)
+              for (final fact in about.statistics)
                 _buildStatItem(fact['value']!, fact['label']!),
             ],
           ),
@@ -189,14 +204,14 @@ class AboutSection extends StatelessWidget {
     );
   }
 
-  Widget _buildEducationCard(BuildContext context) {
-    return const GlassContainer(
-      padding: EdgeInsets.all(24),
+  Widget _buildEducationCard(BuildContext context, AboutModel about) {
+    return GlassContainer(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
+          const Row(
+             children: [
               Icon(Icons.school, color: AppTheme.secondary, size: 20),
               SizedBox(width: 12),
               Text(
@@ -210,28 +225,28 @@ class AboutSection extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            'Diploma / Degree in Computer Engineering',
-            style: TextStyle(
+            about.educationDegree,
+            style: const TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            'Board of Technical Examinations / University',
-            style: TextStyle(
+            about.educationOrg,
+            style: const TextStyle(
               fontSize: 13,
               color: AppTheme.secondary,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            '${PortfolioData.location} | Ongoing',
-            style: TextStyle(
+            about.educationDuration,
+            style: const TextStyle(
               fontSize: 13,
               color: AppTheme.textSecondary,
             ),
@@ -241,13 +256,13 @@ class AboutSection extends StatelessWidget {
     ).animate().fadeIn(delay: 300.ms, duration: 500.ms).slideY(begin: 0.1, end: 0, duration: 500.ms);
   }
 
-  Widget _buildGoalsCard(BuildContext context) {
-    return const GlassContainer(
-      padding: EdgeInsets.all(24),
+  Widget _buildGoalsCard(BuildContext context, AboutModel about) {
+    return GlassContainer(
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.gps_fixed, color: AppTheme.primary, size: 20),
               SizedBox(width: 12),
@@ -262,10 +277,10 @@ class AboutSection extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            'To excel as a cross-platform Flutter and web engineer, developing highly interactive applications that make a tangible positive impact on society. I aim to contribute to global open-source ecosystems and research software design solutions.',
-            style: TextStyle(
+            about.careerGoals,
+            style: const TextStyle(
               fontSize: 13.5,
               color: AppTheme.textSecondary,
               height: 1.5,

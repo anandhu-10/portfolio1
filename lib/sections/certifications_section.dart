@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../data/portfolio_data.dart';
-import '../models/certification.dart';
+import 'package:provider/provider.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/certification_card.dart';
 
 class CertificationsSection extends StatelessWidget {
@@ -10,6 +11,8 @@ class CertificationsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final certifications = stateProvider.state.certifications;
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 1024;
     final isTablet = size.width >= 640 && size.width < 1024;
@@ -17,49 +20,100 @@ class CertificationsSection extends StatelessWidget {
     final horizontalPadding = isDesktop ? size.width * 0.08 : (isTablet ? 48.0 : 24.0);
     final verticalPadding = isDesktop ? 100.0 : (isTablet ? 80.0 : 60.0);
 
-    const List<Certification> certifications = PortfolioData.certifications;
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context, stateProvider),
           const SizedBox(height: 48),
           
-          // Responsive Grid View for Certificates
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: certifications.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
-              childAspectRatio: isDesktop ? 1.05 : 1.25,
+          if (certifications.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 40.0),
+                child: Text('No certifications added yet.', style: TextStyle(color: AppTheme.textSecondary)),
+              ),
+            )
+          else
+            // Responsive Grid View for Certificates
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: certifications.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                childAspectRatio: isDesktop ? 1.05 : 1.25,
+              ),
+              itemBuilder: (context, index) {
+                final cert = certifications[index];
+                
+                final widgetCard = CertificationCard(
+                  certification: cert,
+                ).animate().fadeIn(delay: (index * 75).ms, duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms);
+
+                if (stateProvider.editMode) {
+                  return Stack(
+                    children: [
+                      widgetCard,
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
+                                onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (context) => EditCertificationDialog(
+                                    initialCert: cert,
+                                    onSave: (c) => stateProvider.editCertification(index, c),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
+                                onPressed: () => stateProvider.deleteCertification(index),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return widgetCard;
+              },
             ),
-            itemBuilder: (context, index) {
-              final cert = certifications[index];
-              return CertificationCard(
-                certification: cert,
-              ).animate().fadeIn(delay: (index * 75).ms, duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms);
-            },
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, PortfolioStateProvider provider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.emoji_events, color: AppTheme.secondary, size: 20),
-            SizedBox(width: 10),
-            Text(
+            const Icon(Icons.emoji_events, color: AppTheme.secondary, size: 20),
+            const SizedBox(width: 10),
+            const Text(
               'CERTIFICATIONS',
               style: TextStyle(
                 fontSize: 14,
@@ -68,6 +122,15 @@ class CertificationsSection extends StatelessWidget {
                 letterSpacing: 2,
               ),
             ),
+            if (provider.editMode)
+              EditSectionButton(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => EditCertificationDialog(
+                    onSave: (c) => provider.addCertification(c),
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../data/portfolio_data.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/skill_card.dart';
+import 'package:provider/provider.dart';
 
 class SkillsSection extends StatelessWidget {
   const SkillsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final skillsList = stateProvider.state.skills;
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 1024;
     final isTablet = size.width >= 640 && size.width < 1024;
@@ -16,52 +20,112 @@ class SkillsSection extends StatelessWidget {
     final horizontalPadding = isDesktop ? size.width * 0.08 : (isTablet ? 48.0 : 24.0);
     final verticalPadding = isDesktop ? 100.0 : (isTablet ? 80.0 : 60.0);
 
-    const skillsList = PortfolioData.skills;
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context, stateProvider),
           const SizedBox(height: 48),
           
-          // Responsive Skills Grid using Extent builder
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: skillsList.length,
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 260,
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
-              childAspectRatio: 1.6,
+          if (skillsList.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 40.0),
+                child: Text('No skills added yet.', style: TextStyle(color: AppTheme.textSecondary)),
+              ),
+            )
+          else
+            // Responsive Skills Grid using Extent builder
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: skillsList.length,
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 260,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                childAspectRatio: 1.6,
+              ),
+              itemBuilder: (context, index) {
+                final skill = skillsList[index];
+                
+                // Parse hex color safely
+                Color accentColor;
+                try {
+                  accentColor = Color(int.parse(skill.colorHex));
+                } catch (_) {
+                  accentColor = AppTheme.primary;
+                }
+
+                final widgetCard = SkillCard(
+                  name: skill.name,
+                  percentage: skill.percentage,
+                  // ignore: non_const_argument_for_const_parameter
+                  icon: IconData(skill.iconCodePoint, fontFamily: skill.iconFontFamily),
+                  accentColor: accentColor,
+                ).animate().fadeIn(delay: (index * 50).ms, duration: 400.ms).scale(begin: const Offset(0.9, 0.9), end: const Offset(1.0, 1.0));
+
+                if (stateProvider.editMode) {
+                  return Stack(
+                    children: [
+                      widgetCard,
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
+                                onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (context) => EditSkillDialog(
+                                    initialSkill: skill,
+                                    onSave: (s) => stateProvider.editSkill(index, s),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
+                                onPressed: () => stateProvider.deleteSkill(index),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return widgetCard;
+              },
             ),
-            itemBuilder: (context, index) {
-              final skill = skillsList[index];
-              return SkillCard(
-                name: skill['name'] as String,
-                percentage: skill['percentage'] as double,
-                icon: skill['icon'] as IconData,
-                accentColor: skill['color'] as Color,
-              ).animate().fadeIn(delay: (index * 50).ms, duration: 400.ms).scale(begin: const Offset(0.9, 0.9), end: const Offset(1.0, 1.0));
-            },
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, PortfolioStateProvider provider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.account_tree, color: AppTheme.secondary, size: 20),
-            SizedBox(width: 10),
-            Text(
+            const Icon(Icons.account_tree, color: AppTheme.secondary, size: 20),
+            const SizedBox(width: 10),
+            const Text(
               'SKILLS & EXPERIENCE',
               style: TextStyle(
                 fontSize: 14,
@@ -70,6 +134,15 @@ class SkillsSection extends StatelessWidget {
                 letterSpacing: 2,
               ),
             ),
+            if (provider.editMode)
+              EditSectionButton(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => EditSkillDialog(
+                    onSave: (s) => provider.addSkill(s),
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),

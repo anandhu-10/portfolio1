@@ -1,12 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/project.dart';
+import '../models/portfolio_state_model.dart';
 
 import '../theme/app_theme.dart';
 import 'glass_container.dart';
 
 class ProjectCard extends StatefulWidget {
-  final Project project;
+  final ProjectModel project;
 
   const ProjectCard({
     super.key,
@@ -66,19 +67,30 @@ class _ProjectCardState extends State<ProjectCard> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Coding Icon or image placeholder
-                      AnimatedScale(
-                        scale: _isHovered ? 1.15 : 1.0,
-                        duration: const Duration(milliseconds: 350),
-                        curve: Curves.easeOut,
-                        child: Icon(
-                          widget.project.category == 'Flutter'
-                              ? Icons.smartphone
-                              : Icons.laptop,
-                          size: 55,
-                          color: _isHovered ? Colors.white : AppTheme.textSecondary.withValues(alpha: 0.5),
+                      if (widget.project.imageBase64.isNotEmpty)
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                            child: Image.memory(
+                              base64Decode(widget.project.imageBase64.split(',').last),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      else
+                        // Coding Icon or image placeholder
+                        AnimatedScale(
+                          scale: _isHovered ? 1.15 : 1.0,
+                          duration: const Duration(milliseconds: 350),
+                          curve: Curves.easeOut,
+                          child: Icon(
+                            widget.project.category == 'Flutter'
+                                ? Icons.smartphone
+                                : Icons.laptop,
+                            size: 55,
+                            color: _isHovered ? Colors.white : AppTheme.textSecondary.withValues(alpha: 0.5),
+                          ),
                         ),
-                      ),
                       // Top indicator badge
                       Positioned(
                         top: 12,

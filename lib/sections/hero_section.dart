@@ -1,17 +1,21 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../data/portfolio_data.dart';
+import '../models/portfolio_state_model.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive_layout.dart';
 import '../utils/scroll_controller_provider.dart';
+import '../widgets/admin/edit_dialogs.dart';
 
 class HeroSection extends StatelessWidget {
   const HeroSection({super.key});
 
-  Future<void> _downloadResume() async {
-    final Uri uri = Uri.parse(PortfolioData.resumeUrl);
+  Future<void> _downloadResume(String resumeUrl) async {
+    if (resumeUrl.isEmpty) return;
+    final Uri uri = Uri.parse(resumeUrl);
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
@@ -21,6 +25,8 @@ class HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final profile = stateProvider.state.profile;
     final scrollProvider = Provider.of<ScrollControllerProvider>(context, listen: false);
     final size = MediaQuery.of(context).size;
     final isDesktop = ResponsiveLayout.isDesktop(context);
@@ -38,27 +44,27 @@ class HeroSection extends StatelessWidget {
           children: [
             Expanded(
               flex: 6,
-              child: _buildTextContent(context, scrollProvider, CrossAxisAlignment.start),
+              child: _buildTextContent(context, stateProvider, profile, scrollProvider, CrossAxisAlignment.start),
             ),
             const SizedBox(width: 48),
             Expanded(
               flex: 4,
-              child: _buildProfileVisual(context),
+              child: _buildProfileVisual(context, profile),
             ),
           ],
         ),
         tablet: Column(
           children: [
-            _buildProfileVisual(context),
+            _buildProfileVisual(context, profile),
             const SizedBox(height: 48),
-            _buildTextContent(context, scrollProvider, CrossAxisAlignment.center),
+            _buildTextContent(context, stateProvider, profile, scrollProvider, CrossAxisAlignment.center),
           ],
         ),
         mobile: Column(
           children: [
-            _buildProfileVisual(context),
+            _buildProfileVisual(context, profile),
             const SizedBox(height: 36),
-            _buildTextContent(context, scrollProvider, CrossAxisAlignment.center),
+            _buildTextContent(context, stateProvider, profile, scrollProvider, CrossAxisAlignment.center),
           ],
         ),
       ),
@@ -67,6 +73,8 @@ class HeroSection extends StatelessWidget {
 
   Widget _buildTextContent(
     BuildContext context, 
+    PortfolioStateProvider provider,
+    ProfileModel profile,
     ScrollControllerProvider scrollProvider,
     CrossAxisAlignment alignment,
   ) {
@@ -76,31 +84,46 @@ class HeroSection extends StatelessWidget {
       crossAxisAlignment: alignment,
       children: [
         // Glowing Hello Tag
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3), width: 1),
-          ),
-          child: const Text(
-            'Open to internships, freelance work, and collaboration',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.primary,
-              letterSpacing: 1.0,
-            ),
-          ),
-        ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0, duration: 400.ms),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3), width: 1),
+              ),
+              child: const Text(
+                'Open to internships, freelance work, and collaboration',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.primary,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0, duration: 400.ms),
+            if (provider.editMode)
+              EditSectionButton(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => EditProfileDialog(
+                    initialProfile: profile,
+                    onSave: (p) => provider.updateProfile(p),
+                  ),
+                ),
+              ),
+          ],
+        ),
         const SizedBox(height: 24),
         
         // Large Name Title
         RichText(
           textAlign: isCentered ? TextAlign.center : TextAlign.start,
-          text: const TextSpan(
+          text: TextSpan(
             text: "Hi, I'm ",
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 48,
               fontWeight: FontWeight.bold,
@@ -109,8 +132,8 @@ class HeroSection extends StatelessWidget {
             ),
             children: [
               TextSpan(
-                text: PortfolioData.name,
-                style: TextStyle(
+                text: profile.name,
+                style: const TextStyle(
                   color: AppTheme.primary,
                 ),
               ),
@@ -125,7 +148,7 @@ class HeroSection extends StatelessWidget {
             Rect.fromLTWH(0.0, 0.0, bounds.width, bounds.height),
           ),
           child: Text(
-            PortfolioData.role,
+            profile.role,
             textAlign: isCentered ? TextAlign.center : TextAlign.start,
             style: TextStyle(
               fontFamily: 'Outfit',
@@ -141,7 +164,7 @@ class HeroSection extends StatelessWidget {
         SizedBox(
           width: 550,
           child: Text(
-            PortfolioData.heroSummary,
+            profile.tagline,
             textAlign: isCentered ? TextAlign.center : TextAlign.start,
             style: TextStyle(
               fontSize: ResponsiveLayout.isMobile(context) ? 15 : 16,
@@ -180,7 +203,7 @@ class HeroSection extends StatelessWidget {
             
             // Download Resume
             OutlinedButton(
-              onPressed: _downloadResume,
+              onPressed: () => _downloadResume(profile.resumeUrl),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -196,7 +219,7 @@ class HeroSection extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileVisual(BuildContext context) {
+  Widget _buildProfileVisual(BuildContext context, ProfileModel profile) {
     final size = ResponsiveLayout.isMobile(context) ? 220.0 : 320.0;
     
     return Center(
@@ -298,28 +321,36 @@ class HeroSection extends StatelessWidget {
                     ),
                   ),
                   
-                  // Central Developer Avatar Placeholder Icon
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.code_rounded,
-                        size: size * 0.28,
-                        color: AppTheme.primary.withValues(alpha: 0.85),
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        PortfolioData.initials,
-                        style: TextStyle(
-                          fontFamily: 'Outfit',
-                          fontSize: size * 0.12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white.withValues(alpha: 0.85),
-                          letterSpacing: 2,
+                  if (profile.profilePhotoBase64.isNotEmpty)
+                    Image.memory(
+                      base64Decode(profile.profilePhotoBase64.split(',').last),
+                      width: size,
+                      height: size,
+                      fit: BoxFit.cover,
+                    )
+                  else
+                    // Central Developer Avatar Placeholder Icon
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.code_rounded,
+                          size: size * 0.28,
+                          color: AppTheme.primary.withValues(alpha: 0.85),
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(height: 14),
+                        Text(
+                          profile.initials,
+                          style: TextStyle(
+                            fontFamily: 'Outfit',
+                            fontSize: size * 0.12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white.withValues(alpha: 0.85),
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),

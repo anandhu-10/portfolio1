@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'data/portfolio_data.dart';
 import 'theme/app_theme.dart';
 import 'utils/scroll_controller_provider.dart';
 import 'widgets/custom_app_bar.dart';
@@ -16,6 +15,9 @@ import 'sections/experience_section.dart';
 import 'sections/contact_section.dart';
 import 'sections/footer_section.dart';
 
+import 'providers/portfolio_state_provider.dart';
+import 'pages/admin_settings_page.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
@@ -26,13 +28,37 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ScrollControllerProvider(),
-      child: MaterialApp(
-        title: '${PortfolioData.name} | ${PortfolioData.role}',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        home: const PortfolioHome(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ScrollControllerProvider()),
+        ChangeNotifierProvider(create: (_) => PortfolioStateProvider()),
+      ],
+      child: Consumer<PortfolioStateProvider>(
+        builder: (context, stateProvider, child) {
+          if (stateProvider.isLoading) {
+            return const MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: Scaffold(
+                backgroundColor: AppTheme.background,
+                body: Center(
+                  child: CircularProgressIndicator(color: AppTheme.primary),
+                ),
+              ),
+            );
+          }
+
+          final profile = stateProvider.state.profile;
+          return MaterialApp(
+            title: '${profile.name} | ${profile.role}',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.darkTheme,
+            initialRoute: '/',
+            routes: {
+              '/': (context) => const PortfolioHome(),
+              '/admin': (context) => const AdminSettingsPage(),
+            },
+          );
+        },
       ),
     );
   }

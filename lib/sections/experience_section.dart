@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../data/portfolio_data.dart';
+import 'package:provider/provider.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/timeline_item.dart';
 
 class ExperienceSection extends StatelessWidget {
@@ -9,14 +11,14 @@ class ExperienceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final timelineData = stateProvider.state.experience;
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 1024;
     final isTablet = size.width >= 640 && size.width < 1024;
 
     final horizontalPadding = isDesktop ? size.width * 0.08 : (isTablet ? 48.0 : 24.0);
     final verticalPadding = isDesktop ? 100.0 : (isTablet ? 80.0 : 60.0);
-
-    const timelineData = PortfolioData.experience;
 
     return Container(
       width: double.infinity,
@@ -25,40 +27,94 @@ class ExperienceSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context, stateProvider),
           const SizedBox(height: 48),
           
-          // Timeline list wrapper
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: timelineData.length,
-            itemBuilder: (context, index) {
-              final data = timelineData[index];
-              return TimelineItem(
-                title: data['title'] as String,
-                subtitle: data['subtitle'] as String,
-                duration: data['duration'] as String,
-                description: data['description'] as String,
-                icon: data['icon'] as IconData,
-                isLast: index == timelineData.length - 1,
-              ).animate().fadeIn(delay: (index * 150).ms, duration: 500.ms).slideY(begin: 0.15, end: 0, duration: 500.ms);
-            },
-          ),
+          if (timelineData.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 40.0),
+                child: Text('No experience records added yet.', style: TextStyle(color: AppTheme.textSecondary)),
+              ),
+            )
+          else
+            // Timeline list wrapper
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: timelineData.length,
+              itemBuilder: (context, index) {
+                final data = timelineData[index];
+                
+                final widgetCard = TimelineItem(
+                  title: data.title,
+                  subtitle: data.subtitle,
+                  duration: data.duration,
+                  description: data.description,
+                  // ignore: non_const_argument_for_const_parameter
+                  icon: IconData(data.iconCodePoint, fontFamily: data.iconFontFamily),
+                  isLast: index == timelineData.length - 1,
+                ).animate().fadeIn(delay: (index * 150).ms, duration: 500.ms).slideY(begin: 0.15, end: 0, duration: 500.ms);
+
+                if (stateProvider.editMode) {
+                  return Stack(
+                    children: [
+                      widgetCard,
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
+                                onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (context) => EditExperienceDialog(
+                                    initialExperience: data,
+                                    onSave: (e) => stateProvider.editExperience(index, e),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
+                                onPressed: () => stateProvider.deleteExperience(index),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return widgetCard;
+              },
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, PortfolioStateProvider provider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.history, color: AppTheme.primary, size: 20),
-            SizedBox(width: 10),
-            Text(
+            const Icon(Icons.history, color: AppTheme.primary, size: 20),
+            const SizedBox(width: 10),
+            const Text(
               'EXPERIENCE & ACHIEVEMENTS',
               style: TextStyle(
                 fontSize: 14,
@@ -67,6 +123,15 @@ class ExperienceSection extends StatelessWidget {
                 letterSpacing: 2,
               ),
             ),
+            if (provider.editMode)
+              EditSectionButton(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => EditExperienceDialog(
+                    onSave: (e) => provider.addExperience(e),
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),

@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/certification.dart';
+import '../models/portfolio_state_model.dart';
 import '../theme/app_theme.dart';
 import 'glass_container.dart';
 
 class CertificationCard extends StatefulWidget {
-  final Certification certification;
+  final CertificationModel certification;
 
   const CertificationCard({
     super.key,
@@ -47,6 +48,18 @@ class _CertificationCardState extends State<CertificationCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (widget.certification.imageBase64.isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    base64Decode(widget.certification.imageBase64.split(',').last),
+                    height: 100,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               // Icon Badge Top Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,40 +108,51 @@ class _CertificationCardState extends State<CertificationCard> {
               ),
               const SizedBox(height: 20),
               // View Button
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => _launchUrl(widget.certification.credentialUrl),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: _isHovered ? AppTheme.secondary : AppTheme.border,
-                      width: 1.2,
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'View Credential',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: _isHovered ? AppTheme.textPrimary : AppTheme.textSecondary,
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => _launchUrl(widget.certification.credentialUrl),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: _isHovered ? AppTheme.secondary : AppTheme.border,
+                          width: 1.2,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.open_in_new,
-                        size: 11,
-                        color: _isHovered ? AppTheme.secondary : AppTheme.textSecondary,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Credential',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: _isHovered ? AppTheme.textPrimary : AppTheme.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.open_in_new,
+                            size: 11,
+                            color: _isHovered ? AppTheme.secondary : AppTheme.textSecondary,
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  if (widget.certification.pdfBase64.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
+                      tooltip: 'View PDF Document',
+                      onPressed: () => _launchUrl(widget.certification.pdfBase64),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),

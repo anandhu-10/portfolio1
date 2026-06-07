@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../data/portfolio_data.dart';
-import '../models/project.dart';
+import 'package:provider/provider.dart';
+import '../models/portfolio_state_model.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/project_card.dart';
 
 class ProjectsSection extends StatefulWidget {
@@ -15,10 +17,10 @@ class ProjectsSection extends StatefulWidget {
 class _ProjectsSectionState extends State<ProjectsSection> {
   String _selectedCategory = 'All';
 
-  final List<Project> _allProjects = PortfolioData.projects;
-
   @override
   Widget build(BuildContext context) {
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final projects = stateProvider.state.projects;
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width >= 1024;
     final isTablet = size.width >= 640 && size.width < 1024;
@@ -28,8 +30,8 @@ class _ProjectsSectionState extends State<ProjectsSection> {
 
     // Filter projects based on choice
     final filteredProjects = _selectedCategory == 'All'
-        ? _allProjects
-        : _allProjects.where((p) => p.category == _selectedCategory).toList();
+        ? projects
+        : projects.where((p) => p.category == _selectedCategory).toList();
 
     return Container(
       width: double.infinity,
@@ -38,46 +40,104 @@ class _ProjectsSectionState extends State<ProjectsSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context, stateProvider),
           const SizedBox(height: 36),
           
           // Filter Chips
-          _buildFilterRow(),
+          _buildFilterRow(projects),
           const SizedBox(height: 40),
           
-          // Projects Grid
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: filteredProjects.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: isDesktop ? 3 : (isTablet ? 2 : 1),
-              mainAxisSpacing: 28,
-              crossAxisSpacing: 28,
-              childAspectRatio: isDesktop ? 0.85 : 0.95,
+          if (filteredProjects.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 40.0),
+                child: Text(
+                  'No projects found.',
+                  style: TextStyle(color: AppTheme.textSecondary),
+                ),
+              ),
+            )
+          else
+            // Projects Grid
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: filteredProjects.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isDesktop ? 3 : (isTablet ? 2 : 1),
+                mainAxisSpacing: 28,
+                crossAxisSpacing: 28,
+                childAspectRatio: isDesktop ? 0.85 : 0.95,
+              ),
+              itemBuilder: (context, index) {
+                final project = filteredProjects[index];
+                // Find index of project in overall projects list to pass correct index to provider edit/delete
+                final globalIndex = projects.indexOf(project);
+
+                final widgetCard = ProjectCard(
+                  key: ValueKey('${project.title}_$_selectedCategory'),
+                  project: project,
+                ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms, curve: Curves.easeOut);
+
+                if (stateProvider.editMode) {
+                  return Stack(
+                    children: [
+                      widgetCard,
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.edit_rounded, size: 14, color: AppTheme.primary),
+                                onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (context) => EditProjectDialog(
+                                    initialProject: project,
+                                    onSave: (p) => stateProvider.editProject(globalIndex, p),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: AppTheme.cardBg,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.delete_rounded, size: 14, color: Colors.redAccent),
+                                onPressed: () => stateProvider.deleteProject(globalIndex),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return widgetCard;
+              },
             ),
-            itemBuilder: (context, index) {
-              final project = filteredProjects[index];
-              return ProjectCard(
-                key: ValueKey('${project.title}_$_selectedCategory'),
-                project: project,
-              ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms, curve: Curves.easeOut);
-            },
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, PortfolioStateProvider provider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.laptop, color: AppTheme.primary, size: 20),
-            SizedBox(width: 10),
-            Text(
+            const Icon(Icons.laptop, color: AppTheme.primary, size: 20),
+            const SizedBox(width: 10),
+            const Text(
               'PORTFOLIO PROJECTS',
               style: TextStyle(
                 fontSize: 14,
@@ -86,6 +146,15 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                 letterSpacing: 2,
               ),
             ),
+            if (provider.editMode)
+              EditSectionButton(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => EditProjectDialog(
+                    onSave: (p) => provider.addProject(p),
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),
@@ -101,10 +170,10 @@ class _ProjectsSectionState extends State<ProjectsSection> {
     ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0, duration: 400.ms);
   }
 
-  Widget _buildFilterRow() {
+  Widget _buildFilterRow(List<ProjectModel> projects) {
     final categories = [
       'All',
-      ...PortfolioData.projects.map((project) => project.category).toSet(),
+      ...projects.map((project) => project.category).toSet(),
     ];
     return Wrap(
       spacing: 12,

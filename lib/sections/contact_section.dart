@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../data/portfolio_data.dart';
+import '../models/portfolio_state_model.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive_layout.dart';
+import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/glass_container.dart';
 
 class ContactSection extends StatefulWidget {
@@ -38,17 +41,17 @@ class _ContactSectionState extends State<ContactSection> {
     }
   }
 
-  Future<void> _submitForm() async {
+  Future<void> _submitForm(String recipientEmail, String recipientName) async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSubmitting = true);
 
       final uri = Uri(
         scheme: 'mailto',
-        path: PortfolioData.email,
+        path: recipientEmail,
         queryParameters: {
           'subject': 'Portfolio enquiry from ${_nameController.text.trim()}',
           'body': '''
-Hi Anandhu,
+Hi $recipientName,
 
 ${_messageController.text.trim()}
 
@@ -62,23 +65,23 @@ Sender email: ${_emailController.text.trim()}
         await launchUrl(uri, mode: LaunchMode.externalApplication);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             backgroundColor: AppTheme.surface,
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: AppTheme.primary, size: 18),
-                SizedBox(width: 12),
+                const Icon(Icons.check_circle, color: AppTheme.primary, size: 18),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Opening your email app. Send the draft to reach Anandhu.',
-                    style: TextStyle(color: AppTheme.textPrimary, fontFamily: 'Outfit'),
+                    'Opening your email app. Send the draft to reach $recipientName.',
+                    style: const TextStyle(color: AppTheme.textPrimary, fontFamily: 'Outfit'),
                   ),
                 ),
               ],
             ),
-            duration: Duration(seconds: 4),
+            duration: const Duration(seconds: 4),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10)),
               side: BorderSide(color: AppTheme.primary, width: 1),
             ),
@@ -95,6 +98,9 @@ Sender email: ${_emailController.text.trim()}
 
   @override
   Widget build(BuildContext context) {
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final contact = stateProvider.state.contact;
+    final profile = stateProvider.state.profile;
     final size = MediaQuery.of(context).size;
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final isTablet = ResponsiveLayout.isTablet(context);
@@ -108,7 +114,7 @@ Sender email: ${_emailController.text.trim()}
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context, stateProvider, contact),
           const SizedBox(height: 48),
           
           ResponsiveLayout(
@@ -117,27 +123,27 @@ Sender email: ${_emailController.text.trim()}
               children: [
                 Expanded(
                   flex: 4,
-                  child: _buildContactInfo(),
+                  child: _buildContactInfo(contact),
                 ),
                 const SizedBox(width: 48),
                 Expanded(
                   flex: 6,
-                  child: _buildContactFormCard(),
+                  child: _buildContactFormCard(contact.email, profile.name),
                 ),
               ],
             ),
             tablet: Column(
               children: [
-                _buildContactInfo(),
+                _buildContactInfo(contact),
                 const SizedBox(height: 36),
-                _buildContactFormCard(),
+                _buildContactFormCard(contact.email, profile.name),
               ],
             ),
             mobile: Column(
               children: [
-                _buildContactInfo(),
+                _buildContactInfo(contact),
                 const SizedBox(height: 32),
-                _buildContactFormCard(),
+                _buildContactFormCard(contact.email, profile.name),
               ],
             ),
           ),
@@ -146,15 +152,15 @@ Sender email: ${_emailController.text.trim()}
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, PortfolioStateProvider provider, ContactModel contact) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.send, color: AppTheme.secondary, size: 20),
-            SizedBox(width: 10),
-            Text(
+            const Icon(Icons.send, color: AppTheme.secondary, size: 20),
+            const SizedBox(width: 10),
+            const Text(
               'GET IN TOUCH',
               style: TextStyle(
                 fontSize: 14,
@@ -163,6 +169,16 @@ Sender email: ${_emailController.text.trim()}
                 letterSpacing: 2,
               ),
             ),
+            if (provider.editMode)
+              EditSectionButton(
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => EditContactDialog(
+                    initialContact: contact,
+                    onSave: (c) => provider.updateContact(c),
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),
@@ -178,7 +194,7 @@ Sender email: ${_emailController.text.trim()}
     ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0, duration: 400.ms);
   }
 
-  Widget _buildContactInfo() {
+  Widget _buildContactInfo(ContactModel contact) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -207,23 +223,23 @@ Sender email: ${_emailController.text.trim()}
         _buildInfoTile(
           icon: Icons.mail,
           title: 'Email Me',
-          content: PortfolioData.email,
-          onTap: () => _launchUrl('mailto:${PortfolioData.email}'),
+          content: contact.email,
+          onTap: () => _launchUrl('mailto:${contact.email}'),
         ).animate().fadeIn(delay: 350.ms, duration: 400.ms).slideX(begin: -0.1, end: 0),
         const SizedBox(height: 16),
         
         _buildInfoTile(
           icon: Icons.phone,
           title: 'Phone',
-          content: PortfolioData.phone,
-          onTap: () => _launchUrl('tel:${PortfolioData.phone.replaceAll(' ', '')}'),
+          content: contact.phone,
+          onTap: () => _launchUrl('tel:${contact.phone.replaceAll(' ', '')}'),
         ).animate().fadeIn(delay: 450.ms, duration: 400.ms).slideX(begin: -0.1, end: 0),
         const SizedBox(height: 16),
 
         _buildInfoTile(
           icon: Icons.location_on,
           title: 'Location',
-          content: PortfolioData.location,
+          content: contact.location,
           onTap: () {},
         ).animate().fadeIn(delay: 550.ms, duration: 400.ms).slideX(begin: -0.1, end: 0),
         
@@ -232,11 +248,16 @@ Sender email: ${_emailController.text.trim()}
         // Social Media Buttons Row
         Row(
           children: [
-            _buildSocialIcon(Icons.link, PortfolioData.linkedinUrl, 'LinkedIn'),
-            const SizedBox(width: 14),
-            _buildSocialIcon(Icons.code, PortfolioData.githubUrl, 'GitHub'),
-            const SizedBox(width: 14),
-            _buildSocialIcon(Icons.camera_alt, PortfolioData.instagramUrl, 'Instagram'),
+            if (contact.linkedinUrl.isNotEmpty) ...[
+              _buildSocialIcon(Icons.link, contact.linkedinUrl, 'LinkedIn'),
+              const SizedBox(width: 14),
+            ],
+            if (contact.githubUrl.isNotEmpty) ...[
+              _buildSocialIcon(Icons.code, contact.githubUrl, 'GitHub'),
+              const SizedBox(width: 14),
+            ],
+            if (contact.instagramUrl.isNotEmpty)
+              _buildSocialIcon(Icons.camera_alt, contact.instagramUrl, 'Instagram'),
           ],
         ).animate().fadeIn(delay: 650.ms, duration: 400.ms),
       ],
@@ -312,7 +333,7 @@ Sender email: ${_emailController.text.trim()}
     );
   }
 
-  Widget _buildContactFormCard() {
+  Widget _buildContactFormCard(String recipientEmail, String recipientName) {
     return GlassContainer(
       padding: const EdgeInsets.all(32),
       child: Form(
@@ -395,7 +416,7 @@ Sender email: ${_emailController.text.trim()}
                   boxShadow: AppTheme.neonShadow(color: AppTheme.primary, blur: 8.0),
                 ),
                 child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitForm,
+                  onPressed: _isSubmitting ? null : () => _submitForm(recipientEmail, recipientName),
                   child: _isSubmitting
                       ? const SizedBox(
                           width: 20,
@@ -419,6 +440,6 @@ Sender email: ${_emailController.text.trim()}
           ],
         ),
       ),
-    ).animate().fadeIn(delay: 300.ms, duration: 500.ms).slideY(begin: 0.1, end: 0, duration: 500.ms);
+    );
   }
 }

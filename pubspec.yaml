@@ -24,6 +24,12 @@ dependencies:
   # State management for layout offsets and navigation scrolling
   provider: ^6.1.2
 
+  # Local storage for saving edits client-side
+  shared_preferences: ^2.2.0
+
+  # File picking for images and PDFs
+  file_picker: ^8.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
