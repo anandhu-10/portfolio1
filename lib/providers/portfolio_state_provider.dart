@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -73,15 +72,6 @@ class PortfolioStateProvider extends ChangeNotifier {
         if (localJson != null && localJson.isNotEmpty) {
           _state = PortfolioStateModel.fromJson(jsonDecode(localJson) as Map<String, dynamic>);
           loaded = true;
-        } else {
-          // 3. Fallback to assets JSON file
-          try {
-            final assetJson = await rootBundle.loadString('assets/data/portfolio_data.json');
-            if (assetJson.isNotEmpty) {
-              _state = PortfolioStateModel.fromJson(jsonDecode(assetJson) as Map<String, dynamic>);
-              loaded = true;
-            }
-          } catch (_) {}
         }
       } catch (_) {}
     }

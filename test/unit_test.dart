@@ -25,6 +25,6 @@ void main() {
     );
 
     await tester.pumpAndSettle();
-    print('EditSkillDialog built successfully!');
+    debugPrint('EditSkillDialog built successfully!');
   });
 }

@@ -19,9 +19,9 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     
     // Check for startup exceptions
-    final dynamic exception = tester.takeException();
+    final Object? exception = tester.takeException();
     if (exception != null) {
-      print('EXCEPTION DURING STARTUP: $exception');
+      debugPrint('EXCEPTION DURING STARTUP: $exception');
       throw exception;
     }
     
