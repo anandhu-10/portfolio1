@@ -81,13 +81,13 @@ class PortfolioStateProvider extends ChangeNotifier {
     if (!loaded) {
       _loadDefaults();
       if (_isFirebaseEnabled) {
-        await _saveToFirestore();
+        _saveToFirestore(); // Run in background, do not block UI loading
       }
     } else {
       // If we loaded successfully from local storage or assets but Firebase is enabled,
       // upload this local data to Firestore to keep them in sync
       if (_isFirebaseEnabled && !loadedFromFirestore) {
-        await _saveToFirestore();
+        _saveToFirestore(); // Run in background, do not block UI loading
       }
     }
 
@@ -210,7 +210,8 @@ class PortfolioStateProvider extends ChangeNotifier {
       await FirebaseFirestore.instance
           .collection('portfolios')
           .doc('main_portfolio')
-          .set(_state.toJson());
+          .set(_state.toJson())
+          .timeout(const Duration(seconds: 4));
     } catch (e) {
       debugPrint('Failed to save to Firestore: $e');
     }
@@ -228,7 +229,7 @@ class PortfolioStateProvider extends ChangeNotifier {
     _loadDefaults();
 
     if (_isFirebaseEnabled) {
-      await _saveToFirestore();
+      _saveToFirestore(); // Run in background, do not block UI transition
     }
 
     _isLoading = false;
