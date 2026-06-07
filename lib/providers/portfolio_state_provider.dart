@@ -52,7 +52,8 @@ class PortfolioStateProvider extends ChangeNotifier {
         final doc = await FirebaseFirestore.instance
             .collection('portfolios')
             .doc('main_portfolio')
-            .get();
+            .get()
+            .timeout(const Duration(seconds: 4));
         if (doc.exists && doc.data() != null) {
           _state = PortfolioStateModel.fromJson(doc.data()!);
           loaded = true;
