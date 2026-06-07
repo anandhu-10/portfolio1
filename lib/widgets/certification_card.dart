@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models/portfolio_state_model.dart';
 import '../theme/app_theme.dart';
 import '../utils/pdf_download_helper.dart';
@@ -21,20 +20,12 @@ class CertificationCard extends StatefulWidget {
 class _CertificationCardState extends State<CertificationCard> {
   bool _isHovered = false;
 
-  Future<void> _launchUrl(String url) async {
-    if (url.isEmpty) return;
-    final Uri uri = Uri.parse(url);
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      debugPrint('Could not launch $url: $e');
-    }
-  }
 
   void _showCertificateLightbox(BuildContext context) {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (context) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -42,14 +33,6 @@ class _CertificationCardState extends State<CertificationCard> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
-              ),
               Center(
                 child: Container(
                   constraints: const BoxConstraints(maxHeight: 600, maxWidth: 800),
@@ -137,18 +120,7 @@ class _CertificationCardState extends State<CertificationCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.certification.imageBase64.isNotEmpty) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.memory(
-                    base64Decode(widget.certification.imageBase64.split(',').last),
-                    height: 100,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
+
               // Icon Badge Top Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -205,9 +177,22 @@ class _CertificationCardState extends State<CertificationCard> {
                         if (widget.certification.imageBase64.isNotEmpty) {
                           _showCertificateLightbox(context);
                         } else if (widget.certification.pdfBase64.isNotEmpty) {
-                          _launchUrl(widget.certification.pdfBase64);
+                          downloadPdfFile(widget.certification);
                         } else {
-                          _launchUrl(widget.certification.credentialUrl);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'Certificate not available',
+                                style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600),
+                              ),
+                              backgroundColor: AppTheme.cardBg,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(color: AppTheme.border.withValues(alpha: 0.5)),
+                              ),
+                            ),
+                          );
                         }
                       },
                       style: OutlinedButton.styleFrom(
@@ -224,9 +209,7 @@ class _CertificationCardState extends State<CertificationCard> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            (widget.certification.imageBase64.isNotEmpty || widget.certification.pdfBase64.isNotEmpty) 
-                                ? 'View Certificate' 
-                                : 'Credential',
+                            'Show Certificate',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
