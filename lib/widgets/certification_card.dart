@@ -45,7 +45,7 @@ class _CertificationCardState extends State<CertificationCard> {
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   width: double.infinity,
                   height: double.infinity,
                 ),
@@ -65,7 +65,7 @@ class _CertificationCardState extends State<CertificationCard> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               blurRadius: 20,
                               spreadRadius: 5,
                             ),
@@ -84,7 +84,7 @@ class _CertificationCardState extends State<CertificationCard> {
                 top: 16,
                 right: 16,
                 child: CircleAvatar(
-                  backgroundColor: Colors.black.withOpacity(0.6),
+                  backgroundColor: Colors.black.withValues(alpha: 0.6),
                   child: IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),
                     onPressed: () => Navigator.pop(context),
