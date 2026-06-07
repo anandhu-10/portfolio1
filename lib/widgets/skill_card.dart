@@ -37,7 +37,7 @@ class _SkillCardState extends State<SkillCard> {
           boxShadow: _isHovered 
               ? AppTheme.neonShadow(color: widget.accentColor, blur: 14.0)
               : AppTheme.glassShadow(),
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -45,23 +45,23 @@ class _SkillCardState extends State<SkillCard> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: widget.accentColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       widget.icon,
-                      size: 28,
+                      size: 24,
                       color: widget.accentColor,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       widget.name,
                       style: const TextStyle(
-                        fontSize: 17,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
                         letterSpacing: 0.5,
@@ -70,7 +70,7 @@ class _SkillCardState extends State<SkillCard> {
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

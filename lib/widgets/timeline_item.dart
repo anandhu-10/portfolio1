@@ -69,9 +69,9 @@ class TimelineItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Layout changes based on screen width
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isCompact = constraints.maxWidth < 450;
+                    Builder(
+                      builder: (context) {
+                        final isCompact = MediaQuery.of(context).size.width < 500;
                         if (isCompact) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
