@@ -110,10 +110,10 @@ class PortfolioStateProvider extends ChangeNotifier {
     final about = AboutModel(
       aboutOne: PortfolioData.aboutOne,
       aboutTwo: PortfolioData.aboutTwo,
-      educationDegree: 'Diploma / Degree in Computer Engineering',
-      educationOrg: 'Board of Technical Examinations / University',
-      educationDuration: 'Ongoing',
-      careerGoals: 'To excel as a cross-platform Flutter and web engineer, developing highly interactive applications that make a tangible positive impact on society.',
+      educationDegree: PortfolioData.educationDegree,
+      educationOrg: PortfolioData.educationOrg,
+      educationDuration: PortfolioData.educationDuration,
+      careerGoals: PortfolioData.careerGoals,
       statistics: PortfolioData.quickFacts.map((e) => {
         'value': e['value'] ?? '',
         'label': e['label'] ?? '',

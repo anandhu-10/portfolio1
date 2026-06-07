@@ -1,53 +1,56 @@
 import 'package:flutter/material.dart';
 
 import '../models/portfolio_state_model.dart';
+import 'certification_data.dart';
 
 class PortfolioData {
   static const String name = 'Anandhu Anil';
   static const String shortName = 'Anandhu';
   static const String initials = 'AA';
-  static const String role = 'Computer Engineering Student & Flutter Developer';
-  static const String location = 'Kerala, India';
+  static const String role = 'Aspiring Software Engineer | Flutter & Web Developer';
+  static const String location = 'Changanacherry, Kerala, India';
   static const String email = 'anandhuanil.dev@gmail.com';
   static const String phone = '+91 XXXXX XXXXX';
 
   static const String githubUrl = 'https://github.com/AnandhuAnil';
-  static const String linkedinUrl = 'https://linkedin.com/in/anandhuanil';
+  static const String linkedinUrl = 'https://www.linkedin.com/in/anandhu-anil-936324325/';
   static const String instagramUrl = 'https://instagram.com';
   static const String resumeUrl =
       'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
 
   static const String headline =
-      'I build responsive Flutter and web apps with clean UI, practical features, and reliable user flows.';
+      '🚀 Aspiring Software Engineer | Flutter Developer | Full-Stack Web Developer | AI & Cloud Computing Enthusiast | Open to Learning & Innovation';
 
   static const String heroSummary =
-      'A Computer Engineering student from Kerala focused on Flutter, Dart, React, Firebase, and full-stack web projects. I enjoy turning ideas into polished apps that are easy to use, easy to maintain, and ready to share with recruiters or teams.';
+      'Computer Engineering student at APJ Abdul Kalam Technological University (KTU) focused on Flutter, React, Node.js, Firebase, Cloud Computing, and Generative AI. I love building clean, functional applications and exploring next-generation technologies.';
 
   static const String aboutOne =
-      "I'm Anandhu Anil, a Computer Engineering student from Kerala, India. I work across mobile and web development, with a strong interest in Flutter, Dart, React, Firebase, and practical product design.";
+      "I'm Anandhu Anil, an Aspiring Software Engineer and Computer Engineering student at APJ Abdul Kalam Technological University (KTU). I build cross-platform mobile apps, responsive full-stack websites, and integrate cloud and AI solutions.";
 
   static const String aboutTwo =
-      'This portfolio brings together my certificates, projects, skills, learning journey, contact details, and resume so recruiters and collaborators can understand my work quickly from one LinkedIn-pinned link.';
+      'Through academic events like CodeCraft 2.0 and conclaves on Generative AI, I continuously expand my practical skills. This portfolio brings together my projects, certifications, and technical experience to show my growth and readiness for collaborative development teams.';
+
+  static const String educationDegree = 'Degree / Diploma in Computer Engineering';
+  static const String educationOrg = 'APJ Abdul Kalam Technological University (KTU)';
+  static const String educationDuration = 'Ongoing';
+  static const String careerGoals = 'To excel as a software engineer, building scalable mobile and web applications while incorporating AI and cloud-native solutions to solve real-world community problems.';
 
   static const List<Map<String, String>> quickFacts = [
     {'value': '10+', 'label': 'Projects Built'},
-    {'value': '5+', 'label': 'Certificates'},
+    {'value': '8+', 'label': 'Certifications'},
     {'value': '2+', 'label': 'Years Coding'},
   ];
 
   static const List<Map<String, dynamic>> skills = [
     {'name': 'Flutter', 'percentage': 0.90, 'icon': Icons.phone_android, 'color': Color(0xFF38BDF8)},
-    {'name': 'Dart', 'percentage': 0.88, 'icon': Icons.gps_fixed, 'color': Color(0xFF00B4AB)},
-    {'name': 'React', 'percentage': 0.82, 'icon': Icons.sync, 'color': Color(0xFF61DAFB)},
-    {'name': 'Node.js', 'percentage': 0.75, 'icon': Icons.hub, 'color': Color(0xFF22C55E)},
+    {'name': 'Python', 'percentage': 0.85, 'icon': Icons.terminal, 'color': Color(0xFF3776AB)},
+    {'name': 'React.js', 'percentage': 0.85, 'icon': Icons.sync, 'color': Color(0xFF61DAFB)},
+    {'name': 'Node.js', 'percentage': 0.80, 'icon': Icons.hub, 'color': Color(0xFF22C55E)},
+    {'name': 'MongoDB', 'percentage': 0.75, 'icon': Icons.storage, 'color': Color(0xFF47A248)},
     {'name': 'Firebase', 'percentage': 0.80, 'icon': Icons.local_fire_department, 'color': Color(0xFFFFCA28)},
-    {'name': 'MongoDB', 'percentage': 0.70, 'icon': Icons.storage, 'color': Color(0xFF47A248)},
-    {'name': 'JavaScript', 'percentage': 0.85, 'icon': Icons.javascript, 'color': Color(0xFFF7DF1E)},
-    {'name': 'HTML', 'percentage': 0.92, 'icon': Icons.html, 'color': Color(0xFFE34F26)},
-    {'name': 'CSS', 'percentage': 0.86, 'icon': Icons.css, 'color': Color(0xFF1572B6)},
-    {'name': 'Git', 'percentage': 0.85, 'icon': Icons.device_hub, 'color': Color(0xFFF97316)},
+    {'name': 'Cloud Computing', 'percentage': 0.80, 'icon': Icons.cloud, 'color': Color(0xFF0080FF)},
+    {'name': 'Generative AI', 'percentage': 0.80, 'icon': Icons.psychology, 'color': Color(0xFF9E00FF)},
     {'name': 'GitHub', 'percentage': 0.88, 'icon': Icons.code, 'color': Colors.white},
-    {'name': 'REST APIs', 'percentage': 0.85, 'icon': Icons.lan, 'color': Color(0xFF14B8A6)},
   ];
 
   static final List<ProjectModel> projects = [
@@ -55,8 +58,8 @@ class PortfolioData {
       title: 'Hygieno',
       subtitle: 'Community Waste Management App',
       description:
-          'A platform for citizens to request waste pickup, report issues, and help local administrative teams manage cleaner public spaces with faster follow-up.',
-      technologies: const ['React', 'Node.js', 'MongoDB', 'CSS', 'Vercel'],
+          'A full-stack platform for citizens to request waste pickup, report issues, and help local administrative teams manage cleaner spaces. Built with React.js, Node.js, MongoDB, Vercel V0, and custom CSS.',
+      technologies: const ['ReactJS', 'NodeJS', 'MongoDB', 'Vercel V0', 'CSS'],
       imageBase64: '',
       githubUrl: githubUrl,
       liveUrl: 'https://hygieno-waste.vercel.app',
@@ -86,77 +89,40 @@ class PortfolioData {
     ),
   ];
 
-  static final List<CertificationModel> certifications = [
-    CertificationModel(
-      title: 'AI Prompting & Engineering Certificate',
-      issuingOrganization: 'Google Cloud / Coursera',
-      imageBase64: '',
-      pdfBase64: '',
-      pdfUrl: '',
-      credentialUrl: 'https://coursera.org',
-      date: 'Ongoing',
-    ),
-    CertificationModel(
-      title: 'Flutter & Dart Course Completion',
-      issuingOrganization: 'Udemy / London App Brewery',
-      imageBase64: '',
-      pdfBase64: '',
-      pdfUrl: '',
-      credentialUrl: 'https://udemy.com',
-      date: 'Ongoing',
-    ),
-    CertificationModel(
-      title: 'LinkedIn Learning Certificates',
-      issuingOrganization: 'LinkedIn Learning',
-      imageBase64: '',
-      pdfBase64: '',
-      pdfUrl: '',
-      credentialUrl: 'https://linkedin.com',
-      date: 'Ongoing',
-    ),
-    CertificationModel(
-      title: 'Project Expo Participation Certificate',
-      issuingOrganization: 'State Technical Expo Committee',
-      imageBase64: '',
-      pdfBase64: '',
-      pdfUrl: '',
-      credentialUrl: githubUrl,
-      date: 'Ongoing',
-    ),
-  ];
+  static final List<CertificationModel> certifications = CertificationData.list;
 
   static const List<Map<String, dynamic>> experience = [
     {
-      'title': 'Project Expo Participation',
-      'subtitle': 'Innovation Showcase',
-      'duration': 'Jan 2026',
+      'title': 'CodeCraft 2.0 Python Event',
+      'subtitle': 'Participant & Competitor',
+      'duration': '2026',
       'description':
-          'Presented Hygieno, a community waste management app, with a focus on citizen reporting, request tracking, and practical social impact.',
-      'icon': Icons.lightbulb,
+          'Built Python scripting solutions and solved programming fundamental challenges under speed constraints, showcasing logic and core coding capabilities.',
+      'icon': Icons.code,
     },
     {
-      'title': 'Technical Workshops',
-      'subtitle': 'Continuous Learning',
-      'duration': '2025 - 2026',
+      'title': 'Generative AI Conclave',
+      'subtitle': 'International Conclave Participant',
+      'duration': '2025',
       'description':
-          'Practiced modern app architecture, responsive UI, state management, Firebase workflows, and performance-minded web development.',
-      'icon': Icons.person_pin,
-    },
-    {
-      'title': 'AI Prompting Learning Journey',
-      'subtitle': 'Generative AI Engineering',
-      'duration': 'Late 2025',
-      'description':
-          'Studied structured prompting, context design, and AI-assisted development workflows for smarter software interfaces.',
+          'Explored the future of Generative AI applications and Education 3.0 paradigms, studying practical integration methods and prompting schemas.',
       'icon': Icons.psychology,
     },
     {
-      'title': 'Web Development Activities',
-      'subtitle': 'Frontend and UI Design',
-      'duration': '2024 - 2025',
+      'title': 'Cloud Computing Pacelab',
+      'subtitle': 'Hands-on Cloud Training',
+      'duration': '2025',
       'description':
-          'Built responsive websites and UI templates using HTML, CSS, JavaScript, layout systems, SEO basics, and clean visual hierarchy.',
-      'icon': Icons.code,
+          'Studied cloud architectures, hosting configurations, serverless environments, and storage systems through practical labs.',
+      'icon': Icons.cloud,
+    },
+    {
+      'title': 'Full-Stack Waste Management Project',
+      'subtitle': 'Hygieno Project Developer',
+      'duration': '2025 - 2026',
+      'description':
+          'Implemented the backend and frontend for the Hygieno trash tracking app using React.js, Node.js, MongoDB, Vercel, and custom CSS.',
+      'icon': Icons.delete_outline,
     },
   ];
 }

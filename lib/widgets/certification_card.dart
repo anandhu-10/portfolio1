@@ -112,7 +112,13 @@ class _CertificationCardState extends State<CertificationCard> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => _launchUrl(widget.certification.credentialUrl),
+                      onPressed: () {
+                        if (widget.certification.pdfBase64.isNotEmpty) {
+                          _launchUrl(widget.certification.pdfBase64);
+                        } else {
+                          _launchUrl(widget.certification.credentialUrl);
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
                           color: _isHovered ? AppTheme.secondary : AppTheme.border,
@@ -127,7 +133,7 @@ class _CertificationCardState extends State<CertificationCard> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Credential',
+                            widget.certification.pdfBase64.isNotEmpty ? 'View Certificate' : 'Credential',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -144,14 +150,6 @@ class _CertificationCardState extends State<CertificationCard> {
                       ),
                     ),
                   ),
-                  if (widget.certification.pdfBase64.isNotEmpty) ...[
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
-                      tooltip: 'View PDF Document',
-                      onPressed: () => _launchUrl(widget.certification.pdfBase64),
-                    ),
-                  ],
                 ],
               ),
             ],
