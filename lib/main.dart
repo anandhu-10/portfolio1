@@ -35,26 +35,27 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<PortfolioStateProvider>(
         builder: (context, stateProvider, child) {
-          if (stateProvider.isLoading) {
-            return const MaterialApp(
-              debugShowCheckedModeBanner: false,
-              home: Scaffold(
-                backgroundColor: AppTheme.background,
-                body: Center(
-                  child: CircularProgressIndicator(color: AppTheme.primary),
-                ),
-              ),
-            );
-          }
+          final String title = stateProvider.isLoading
+              ? 'Portfolio'
+              : '${stateProvider.state.profile.name} | ${stateProvider.state.profile.role}';
 
-          final profile = stateProvider.state.profile;
           return MaterialApp(
-            title: '${profile.name} | ${profile.role}',
+            title: title,
             debugShowCheckedModeBanner: false,
             theme: AppTheme.darkTheme,
             initialRoute: '/',
             routes: {
-              '/': (context) => const PortfolioHome(),
+              '/': (context) {
+                if (stateProvider.isLoading) {
+                  return const Scaffold(
+                    backgroundColor: AppTheme.background,
+                    body: Center(
+                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    ),
+                  );
+                }
+                return const PortfolioHome();
+              },
               '/admin': (context) => const AdminSettingsPage(),
             },
           );

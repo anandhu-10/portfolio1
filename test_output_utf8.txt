@@ -1,0 +1,224 @@
+﻿00:00 +0: loading D:/portfolio/test/widget_test.dart
+00:00 +0: Portfolio loads and builds without exceptions
+--- WIDGET TREE DUMP ---
+AutomatedTestWidgetsFlutterBinding - DEBUG MODE
+[root]
+└View(state: _ViewState#87e78)
+ └RawView
+  └_RawViewInternal-[_DeprecatedRawViewKey TestFlutterView#91181](renderObject: _ReusableRenderView#63ea1)
+   └_ViewScope
+    └_PipelineOwnerScope
+     └_MediaQueryFromView(state: _MediaQueryFromViewState#3e319)
+      └MediaQuery(MediaQueryData(size: Size(800.0, 600.0), devicePixelRatio: 3.0, textScaler: SystemTextScaler (no scaling), platformBrightness: Brightness.light, padding: EdgeInsets.zero, viewPadding: EdgeInsets.zero, viewInsets: EdgeInsets.zero, systemGestureInsets: EdgeInsets.zero, alwaysUse24HourFormat: false, accessibleNavigation: false, highContrast: false, onOffSwitchLabels: false, disableAnimations: false, invertColors: false, boldText: false, navigationMode: traditional, gestureSettings: DeviceGestureSettings(touchSlop: null), displayFeatures: [], supportsShowingSystemContextMenu: false, lineHeightScaleFactorOverride: null, letterSpacingOverride: null, wordSpacingOverride: null, paragraphSpacingOverride: null, displayCornerRadii: null))
+       └FocusTraversalGroup(policy: ReadingOrderTraversalPolicy#bbeba, state: _FocusTraversalGroupState#76825)
+        └Focus(debugLabel: "FocusTraversalGroup", focusNode: _FocusTraversalGroupNode#7e79e(FocusTraversalGroup [IN FOCUS PATH]), state: _FocusState#491b8)
+         └_FocusInheritedScope
+          └_FocusScopeWithExternalFocusNode(debugLabel: "View Scope", focusNode: FocusScopeNode#ddd3d(View Scope [IN FOCUS PATH]), dependencies: [_FocusInheritedScope], state: _FocusScopeState#14cef)
+           └_FocusInheritedScope
+            └MyApp
+             └MultiProvider
+              └_NestedHook
+               └SingleChildBuilder
+                └_InheritedProviderScope<ScrollControllerProvider?>(value: <not yet loaded>)
+                 └_InheritedProviderScope<PortfolioStateProvider?>(value: Instance of 'PortfolioStateProvider', listening to value)
+                  └Consumer<PortfolioStateProvider>(dependencies: [_InheritedProviderScope<PortfolioStateProvider?>])
+                   └MaterialApp(state: _MaterialAppState#20f09)
+                    └ScrollConfiguration(behavior: MaterialScrollBehavior)
+                     └HeroControllerScope
+                      └WidgetsApp-[GlobalObjectKey _MaterialAppState#20f09](state: _WidgetsAppState#125ca)
+                       └RootRestorationScope(state: _RootRestorationScopeState#739cd)
+                        └UnmanagedRestorationScope
+                         └RestorationScope(dependencies: [UnmanagedRestorationScope], state: _RestorationScopeState#9bac7)
+                          └UnmanagedRestorationScope
+                           └SharedAppData(state: _SharedAppDataState#d59fc)
+                            └_SharedAppModel
+                             └NotificationListener<NavigationNotification>
+                              └Shortcuts(shortcuts: <Default WidgetsApp Shortcuts>, state: _ShortcutsState#d611e)
+                               └Focus(debugLabel: "Shortcuts: <Default WidgetsApp Shortcuts>", dependencies: [_FocusInheritedScope], state: _FocusState#4a1de)
+                                └_FocusInheritedScope
+                                 └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#9f6b0)
+                                  └DefaultTextEditingShortcuts
+                                   └Shortcuts(shortcuts: <Default Text Editing Shortcuts>, state: _ShortcutsState#7c0a3)
+                                    └Focus(debugLabel: "Shortcuts: <Default Text Editing Shortcuts>", dependencies: [_FocusInheritedScope], state: _FocusState#c5385)
+                                     └_FocusInheritedScope
+                                      └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#28d75)
+                                       └Actions(dispatcher: null, actions: {DoNothingIntent: DoNothingAction#b6e1a, DoNothingAndStopPropagationIntent: DoNothingAction#6ccaa, RequestFocusIntent: RequestFocusAction#db209, NextFocusIntent: NextFocusAction#9dd8c, PreviousFocusIntent: PreviousFocusAction#7ba4b, DirectionalFocusIntent: DirectionalFocusAction#04985, ScrollIntent: _OverridableContextAction<ScrollIntent>#9c19c(defaultAction: ScrollAction#d859d), PrioritizedIntents: PrioritizedAction#55cde, VoidCallbackIntent: VoidCallbackAction#8eefb}, state: _ActionsState#69fd0)
+                                        └_ActionsScope
+                                         └FocusTraversalGroup(policy: ReadingOrderTraversalPolicy#72794, state: _FocusTraversalGroupState#c9a8b)
+                                          └Focus(debugLabel: "FocusTraversalGroup", focusNode: _FocusTraversalGroupNode#369e9(FocusTraversalGroup [IN FOCUS PATH]), dependencies: [_FocusInheritedScope], state: _FocusState#d0dde)
+                                           └_FocusInheritedScope
+                                            └TapRegionSurface(renderObject: RenderTapRegionSurface#cd5c6)
+                                             └ShortcutRegistrar(state: _ShortcutRegistrarState#fd648)
+                                              └_ShortcutRegistrarScope
+                                               └Shortcuts(manager: ShortcutManager#e6a7e(shortcuts: {}), shortcuts: <Shortcut Registrar>, state: _ShortcutsState#75e8f)
+                                                └Focus(debugLabel: "Shortcuts: <Shortcut Registrar>", dependencies: [_FocusInheritedScope], state: _FocusState#fe039)
+                                                 └_FocusInheritedScope
+                                                  └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#9dbf8)
+                                                   └ListenableBuilder(listenable: LocalizationsResolver, state: _AnimatedState#2c654)
+                                                    └Localizations(locale: en_US, delegates: [DefaultMaterialLocalizations.delegate(en_US), DefaultCupertinoLocalizations.delegate(en_US), DefaultWidgetsLocalizations.delegate(en_US)], state: _LocalizationsState#c78c0)
+                                                     └Semantics(container: false, properties: SemanticsProperties, textDirection: ltr, renderObject: RenderSemanticsAnnotations#2a73e)
+                                                      └_LocalizationsScope-[GlobalKey#2423c]
+                                                       └Directionality(textDirection: ltr)
+                                                        └Title(state: _TitleState#fe38d(color: Color(alpha: 1.0000, red: 0.1294, green: 0.5882, blue: 0.9529, colorSpace: ColorSpace.sRGB)))
+                                                         └Focus(dependencies: [_FocusInheritedScope], state: _FocusState#ab96f)
+                                                          └_FocusInheritedScope
+                                                           └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#01df7)
+                                                            └ValueListenableBuilder<bool>(state: _ValueListenableBuilderState<bool>#991be)
+                                                             └DefaultTextStyle(debugLabel: fallback style; consider putting your text in a Material, inherit: true, color: Color(alpha: 0.8157, red: 1.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), family: monospace, size: 48.0, weight: 900, decoration: double Color(alpha: 1.0000, red: 1.0000, green: 1.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB) TextDecoration.underline, softWrap: wrapping at box width, overflow: clip)
+                                                              └Builder(dependencies: [MediaQuery])
+                                                               └AnimatedTheme(duration: 200ms, state: _AnimatedThemeState#d32f8(ticker inactive, ThemeDataTween(ThemeData#a3f72 → ThemeData#a3f72)))
+                                                                └Theme(ThemeData#a3f72, dependencies: [MediaQuery])
+                                                                 └_InheritedTheme
+                                                                  └CupertinoTheme(brightness: light, primaryColor: Color(alpha: 1.0000, red: 0.4039, green: 0.3137, blue: 0.6431, colorSpace: ColorSpace.sRGB), scaffoldBackgroundColor: Color(alpha: 1.0000, red: 0.9961, green: 0.9686, blue: 1.0000, colorSpace: ColorSpace.sRGB), actionTextStyle: TextStyle(inherit: false, color: Color(alpha: 1.0000, red: 0.4039, green: 0.3137, blue: 0.6431, colorSpace: ColorSpace.sRGB), family: CupertinoSystemText, size: 17.0, letterSpacing: -0.4, decoration: TextDecoration.none), actionSmallTextStyle: TextStyle(inherit: false, color: Color(alpha: 1.0000, red: 0.4039, green: 0.3137, blue: 0.6431, colorSpace: ColorSpace.sRGB), family: CupertinoSystemText, size: 15.0, letterSpacing: -0.2, decoration: TextDecoration.none), navActionTextStyle: TextStyle(inherit: false, color: Color(alpha: 1.0000, red: 0.4039, green: 0.3137, blue: 0.6431, colorSpace: ColorSpace.sRGB), family: CupertinoSystemText, size: 17.0, letterSpacing: -0.4, decoration: TextDecoration.none))
+                                                                   └InheritedCupertinoTheme
+                                                                    └IconTheme(color: Color(alpha: 1.0000, red: 0.4039, green: 0.3137, blue: 0.6431, colorSpace: ColorSpace.sRGB))
+                                                                     └IconTheme(color: Color(alpha: 0.8667, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB))
+                                                                      └DefaultSelectionStyle
+                                                                       └ScaffoldMessenger(dependencies: [MediaQuery], state: ScaffoldMessengerState#85b58)
+                                                                        └_ScaffoldMessengerScope
+                                                                         └DefaultSelectionStyle
+                                                                          └FocusScope(debugLabel: "Navigator Scope", AUTOFOCUS, dependencies: [_FocusInheritedScope], state: _FocusScopeState#8970d)
+                                                                           └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#7d130)
+                                                                            └_FocusInheritedScope
+                                                                             └Navigator-[GlobalObjectKey<NavigatorState> _WidgetsAppState#125ca](dependencies: [HeroControllerScope, InheritedCupertinoTheme, UnmanagedRestorationScope, _InheritedTheme, _LocalizationsScope-[GlobalKey#2423c]], state: NavigatorState#5087f(tickers: tracking 1 ticker))
+                                                                              └HeroControllerScope
+                                                                               └NotificationListener<NavigationNotification>
+                                                                                └Listener(listeners: [down, up, cancel], behavior: deferToChild, renderObject: RenderPointerListener#8fa5f)
+                                                                                 └AbsorbPointer(absorbing: false, renderObject: RenderAbsorbPointer#9706c)
+                                                                                  └FocusTraversalGroup(policy: ReadingOrderTraversalPolicy#72794, state: _FocusTraversalGroupState#d9d47)
+                                                                                   └Focus(debugLabel: "FocusTraversalGroup", focusNode: _FocusTraversalGroupNode#5b10c(FocusTraversalGroup [IN FOCUS PATH]), dependencies: [_FocusInheritedScope], state: _FocusState#89793)
+                                                                                    └_FocusInheritedScope
+                                                                                     └Focus(debugLabel: "Navigator", AUTOFOCUS, focusNode: FocusNode#39d58(Navigator [IN FOCUS PATH]), dependencies: [_FocusInheritedScope], state: _FocusState#f25c8)
+                                                                                      └_FocusInheritedScope
+                                                                                       └UnmanagedRestorationScope
+                                                                                        └Overlay-[LabeledGlobalKey<OverlayState>#b02ed](state: OverlayState#a3272(entries: [OverlayEntry#f48d0(opaque: true; maintainState: false), OverlayEntry#5d496(opaque: false; maintainState: true)]))
+                                                                                         └_Theater(skipCount: 0, dependencies: [Directionality], renderObject: _RenderTheater#abb96)
+                                                                                          ├_OverlayEntryWidget-[LabeledGlobalKey<_OverlayEntryWidgetState>#fdd56](state: _OverlayEntryWidgetState#6822a)
+                                                                                          │└TickerMode(state: _TickerModeState#ade04(requested mode: enabled))
+                                                                                          │ └_EffectiveTickerMode(effective mode: enabled)
+                                                                                          │  └_RenderTheaterMarker
+                                                                                          │   └Builder
+                                                                                          │    └IgnorePointer(ignoring: false, renderObject: RenderIgnorePointer#222eb)
+                                                                                          │     └ModalBarrier
+                                                                                          │      └BlockSemantics(blocking: true, renderObject: RenderBlockSemantics#b069c)
+                                                                                          │       └ExcludeSemantics(excluding: true, renderObject: RenderExcludeSemantics#4789c)
+                                                                                          │        └_ModalBarrierGestureDetector
+                                                                                          │         └RawGestureDetector(state: RawGestureDetectorState#0056c(gestures: [any tap], behavior: opaque))
+                                                                                          │          └_GestureSemantics(renderObject: RenderSemanticsGestureHandler#583dc)
+                                                                                          │           └Listener(listeners: [down, panZoomStart], behavior: opaque, renderObject: RenderPointerListener#8ad4b)
+                                                                                          │            └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#5ee11)
+                                                                                          │             └MouseRegion(listeners: <none>, cursor: SystemMouseCursor(basic), renderObject: RenderMouseRegion#1422b)
+                                                                                          │              └ConstrainedBox(BoxConstraints(biggest), renderObject: RenderConstrainedBox#4a786)
+                                                                                          └_OverlayEntryWidget-[LabeledGlobalKey<_OverlayEntryWidgetState>#7fd13](state: _OverlayEntryWidgetState#ec909)
+                                                                                           └TickerMode(state: _TickerModeState#2bba1(requested mode: enabled))
+                                                                                            └_EffectiveTickerMode(effective mode: enabled)
+                                                                                             └_RenderTheaterMarker
+                                                                                              └Builder
+                                                                                               └Semantics(container: false, properties: SemanticsProperties, sortKey: OrdinalSortKey#dd5ce(order: 0.0), renderObject: RenderSemanticsAnnotations#ba864)
+                                                                                                └_ModalScope<dynamic>-[LabeledGlobalKey<_ModalScopeState<dynamic>>#2f79b](state: _ModalScopeState<dynamic>#40cf9)
+                                                                                                 └AnimatedBuilder(listenable: ValueNotifier<String?>#9c766(null), state: _AnimatedState#f5bd1)
+                                                                                                  └RestorationScope(dependencies: [UnmanagedRestorationScope], state: _RestorationScopeState#a7f24)
+                                                                                                   └UnmanagedRestorationScope
+                                                                                                    └_ModalScopeStatus(active)
+                                                                                                     └Offstage(offstage: false, renderObject: RenderOffstage#f4330)
+                                                                                                      └PageStorage
+                                                                                                       └Builder
+                                                                                                        └Actions(dispatcher: null, actions: {DismissIntent: _DismissModalAction#7a829}, state: _ActionsState#a2777)
+                                                                                                         └_ActionsScope
+                                                                                                          └PrimaryScrollController(ScrollController#7b700(no clients))
+                                                                                                           └_FocusScopeWithExternalFocusNode(debugLabel: "_ModalScopeState<dynamic> Focus Scope", focusNode: FocusScopeNode#b2920(_ModalScopeState<dynamic> Focus Scope [PRIMARY FOCUS]), dependencies: [_FocusInheritedScope], state: _FocusScopeState#c64da)
+                                                                                                            └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#039fe)
+                                                                                                             └_FocusInheritedScope
+                                                                                                              └RepaintBoundary(renderObject: RenderRepaintBoundary#02708)
+                                                                                                               └ListenableBuilder(listenable: Listenable.merge([AnimationController#17e2a(⏭ 1.000; paused; for MaterialPageRoute<dynamic>(/))➩ProxyAnimation, kAlwaysDismissedAnimation➩ProxyAnimation➩ProxyAnimation]), dependencies: [InheritedCupertinoTheme, _InheritedTheme, _LocalizationsScope-[GlobalKey#2423c]], state: _AnimatedState#d47cf)
+                                                                                                                └_PageTransitionsThemeTransitions<dynamic>(dependencies: [InheritedCupertinoTheme, _InheritedTheme, _LocalizationsScope-[GlobalKey#2423c]], state: _PageTransitionsThemeTransitionsState<dynamic>#2f0d8)
+                                                                                                                 └_PredictiveBackGestureDetector(state: _PredictiveBackGestureDetectorState#e9f37)
+                                                                                                                  └_FadeForwardsPageTransition(dependencies: [_ModalScopeStatus])
+                                                                                                                   └DualTransitionBuilder(state: _DualTransitionBuilderState#aff4b)
+                                                                                                                    └FadeTransition(opacity: kAlwaysCompleteAnimation➩ProxyAnimation➩CurveTween(curve: Interval(0.0⋯0.75))➩Tween<double>(0.0 → 1.0)➩1.0, renderObject: RenderAnimatedOpacity#17dc4)
+                                                                                                                     └SlideTransition(listenable: kAlwaysCompleteAnimation➩ProxyAnimation➩CurveTween(curve: ThreePointCubic )➩Tween<Offset>(Offset(0.3, 0.0) → Offset(0.0, 0.0))➩Offset(0.0, 0.0), state: _AnimatedState#59692)
+                                                                                                                      └FractionalTranslation(renderObject: RenderFractionalTranslation#5bc52)
+                                                                                                                       └IgnorePointer(ignoring: false, renderObject: RenderIgnorePointer#da461)
+                                                                                                                        └FadeTransition(opacity: AnimationController#17e2a(⏭ 1.000; paused; for MaterialPageRoute<dynamic>(/))➩ProxyAnimation➪ReverseAnimation➩ProxyAnimation➩CurveTween(curve: Interval(0.0⋯0.25))➩Tween<double>(1.0 → 0.0)➩1.0, renderObject: RenderAnimatedOpacity#0b84b)
+                                                                                                                         └SlideTransition(listenable: AnimationController#17e2a(⏭ 1.000; paused; for MaterialPageRoute<dynamic>(/))➩ProxyAnimation➪ReverseAnimation➩ProxyAnimation➩CurveTween(curve: ThreePointCubic )➩Tween<Offset>(Offset(0.0, 0.0) → Offset(0.3, 0.0))➩Offset(0.0, 0.0), state: _AnimatedState#50ac8)
+                                                                                                                          └FractionalTranslation(renderObject: RenderFractionalTranslation#01c17)
+                                                                                                                           └ColoredBox(color: Color(alpha: 0.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), renderObject: _RenderColoredBox#42342)
+                                                                                                                            └DualTransitionBuilder(state: _DualTransitionBuilderState#42a3c)
+                                                                                                                             └FadeTransition(opacity: kAlwaysCompleteAnimation➩ProxyAnimation➩CurveTween(curve: Interval(0.0⋯0.75))➩Tween<double>(0.0 → 1.0)➩1.0, renderObject: RenderAnimatedOpacity#5886d)
+                                                                                                                              └SlideTransition(listenable: kAlwaysCompleteAnimation➩ProxyAnimation➩CurveTween(curve: ThreePointCubic )➩Tween<Offset>(Offset(-0.3, 0.0) → Offset(0.0, 0.0))➩Offset(0.0, 0.0), state: _AnimatedState#c9884)
+                                                                                                                               └FractionalTranslation(renderObject: RenderFractionalTranslation#7b3e1)
+                                                                                                                                └FadeTransition(opacity: kAlwaysDismissedAnimation➩ProxyAnimation➩ProxyAnimation➪ReverseAnimation➪ReverseAnimation➩ProxyAnimation➩CurveTween(curve: Interval(0.0⋯0.25))➩Tween<double>(1.0 → 0.0)➩1.0, renderObject: RenderAnimatedOpacity#e6165)
+                                                                                                                                 └SlideTransition(listenable: kAlwaysDismissedAnimation➩ProxyAnimation➩ProxyAnimation➪ReverseAnimation➪ReverseAnimation➩ProxyAnimation➩CurveTween(curve: ThreePointCubic )➩Tween<Offset>(Offset(0.0, 0.0) → Offset(-0.3, 0.0))➩Offset(0.0, 0.0), state: _AnimatedState#222f6)
+                                                                                                                                  └FractionalTranslation(renderObject: RenderFractionalTranslation#cf8c2)
+                                                                                                                                   └ListenableBuilder(listenable: ValueNotifier<bool>#a15a4(false), state: _AnimatedState#fe836)
+                                                                                                                                    └IgnorePointer(ignoring: false, renderObject: RenderIgnorePointer#2a34d)
+                                                                                                                                     └RepaintBoundary-[GlobalKey#f90d9](renderObject: RenderRepaintBoundary#1f59d)
+                                                                                                                                      └Builder
+                                                                                                                                       └Semantics(container: false, properties: SemanticsProperties, renderObject: RenderSemanticsAnnotations#73222)
+                                                                                                                                        └Scaffold(dependencies: [Directionality, InheritedCupertinoTheme, MediaQuery, UnmanagedRestorationScope, _InheritedTheme, _LocalizationsScope-[GlobalKey#2423c], _ScaffoldMessengerScope], state: ScaffoldState#b5ee1(tickers: tracking 3 tickers))
+                                                                                                                                         └_ScaffoldScope
+                                                                                                                                          └ScrollNotificationObserver(state: ScrollNotificationObserverState#90d85)
+                                                                                                                                           └NotificationListener<ScrollMetricsNotification>
+                                                                                                                                            └NotificationListener<ScrollNotification>
+                                                                                                                                             └_ScrollNotificationObserverScope
+                                                                                                                                              └Material(type: canvas, color: Color(alpha: 1.0000, red: 0.0431, green: 0.0588, blue: 0.0980, colorSpace: ColorSpace.sRGB), dependencies: [InheritedCupertinoTheme, _InheritedTheme, _LocalizationsScope-[GlobalKey#2423c]], state: _MaterialState#c4394)
+                                                                                                                                               └AnimatedPhysicalModel(duration: 200ms, shape: rectangle, borderRadius: null, elevation: 0.0, color: Color(alpha: 1.0000, red: 0.0431, green: 0.0588, blue: 0.0980, colorSpace: ColorSpace.sRGB), animateColor: false, shadowColor: Color(alpha: 1.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), animateShadowColor: true, state: _AnimatedPhysicalModelState#5eb2b(ticker inactive))
+                                                                                                                                                └PhysicalModel(shape: rectangle, borderRadius: BorderRadius.zero, elevation: 0.0, color: Color(alpha: 1.0000, red: 0.0431, green: 0.0588, blue: 0.0980, colorSpace: ColorSpace.sRGB), shadowColor: Color(alpha: 1.0000, red: 0.0000, green: 0.0000, blue: 0.0000, colorSpace: ColorSpace.sRGB), renderObject: RenderPhysicalModel#64c14)
+                                                                                                                                                 └NotificationListener<LayoutChangedNotification>
+                                                                                                                                                  └_InkFeatures-[GlobalKey#edd1f ink renderer](renderObject: _RenderInkFeatures#cfce9)
+                                                                                                                                                   └AnimatedDefaultTextStyle(duration: 200ms, debugLabel: (englishLike bodyMedium 2021).merge((blackMountainView bodyMedium).apply), inherit: false, color: Color(alpha: 1.0000, red: 0.1137, green: 0.1059, blue: 0.1255, colorSpace: ColorSpace.sRGB), family: Roboto, size: 14.0, weight: 400, letterSpacing: 0.3, baseline: alphabetic, height: 1.4x, leadingDistribution: even, decoration: Color(alpha: 1.0000, red: 0.1137, green: 0.1059, blue: 0.1255, colorSpace: ColorSpace.sRGB) TextDecoration.none, softWrap: wrapping at box width, overflow: clip, state: _AnimatedDefaultTextStyleState#6a2c9(ticker inactive))
+                                                                                                                                                    └DefaultTextStyle(debugLabel: (englishLike bodyMedium 2021).merge((blackMountainView bodyMedium).apply), inherit: false, color: Color(alpha: 1.0000, red: 0.1137, green: 0.1059, blue: 0.1255, colorSpace: ColorSpace.sRGB), family: Roboto, size: 14.0, weight: 400, letterSpacing: 0.3, baseline: alphabetic, height: 1.4x, leadingDistribution: even, decoration: Color(alpha: 1.0000, red: 0.1137, green: 0.1059, blue: 0.1255, colorSpace: ColorSpace.sRGB) TextDecoration.none, softWrap: wrapping at box width, overflow: clip)
+                                                                                                                                                     └Builder
+                                                                                                                                                      └Actions(dispatcher: null, actions: {DismissIntent: _DismissDrawerAction#01266}, state: _ActionsState#69b5d)
+                                                                                                                                                       └_ActionsScope
+                                                                                                                                                        └CustomMultiChildLayout(renderObject: RenderCustomMultiChildLayoutBox#7aa8c)
+                                                                                                                                                         ├LayoutId-[<_ScaffoldSlot.body>](id: _ScaffoldSlot.body)
+                                                                                                                                                         │└MediaQuery(MediaQueryData(size: Size(800.0, 600.0), devicePixelRatio: 3.0, textScaler: SystemTextScaler (no scaling), platformBrightness: Brightness.light, padding: EdgeInsets.zero, viewPadding: EdgeInsets.zero, viewInsets: EdgeInsets.zero, systemGestureInsets: EdgeInsets.zero, alwaysUse24HourFormat: false, accessibleNavigation: false, highContrast: false, onOffSwitchLabels: false, disableAnimations: false, invertColors: false, boldText: false, navigationMode: traditional, gestureSettings: DeviceGestureSettings(touchSlop: null), displayFeatures: [], supportsShowingSystemContextMenu: false, lineHeightScaleFactorOverride: null, letterSpacingOverride: null, wordSpacingOverride: null, paragraphSpacingOverride: null, displayCornerRadii: null))
+                                                                                                                                                         │ └_BodyBuilder
+                                                                                                                                                         │  └KeyedSubtree-[GlobalKey#3b5d0]
+                                                                                                                                                         │   └Center(alignment: Alignment.center, dependencies: [Directionality], renderObject: RenderPositionedBox#1b75a relayoutBoundary=up1)
+                                                                                                                                                         │    └CircularProgressIndicator(<indeterminate>, state: _CircularProgressIndicatorState#29c87(ticker active))
+                                                                                                                                                         │     └Builder
+                                                                                                                                                         │      └AnimatedBuilder(listenable: AnimationController#d30b7(▶ 0.000), dependencies: [InheritedCupertinoTheme, _InheritedTheme, _LocalizationsScope-[GlobalKey#2423c]], state: _AnimatedState#4de29)
+                                                                                                                                                         │       └Semantics(container: false, properties: SemanticsProperties, role: loadingSpinner, renderObject: RenderSemanticsAnnotations#fb624 relayoutBoundary=up2)
+                                                                                                                                                         │        └ConstrainedBox(BoxConstraints(36.0<=w<=Infinity, 36.0<=h<=Infinity), renderObject: RenderConstrainedBox#c4881 relayoutBoundary=up3)
+                                                                                                                                                         │         └CustomPaint(renderObject: RenderCustomPaint#c0d3f relayoutBoundary=up4)
+                                                                                                                                                         └LayoutId-[<_ScaffoldSlot.floatingActionButton>](id: _ScaffoldSlot.floatingActionButton)
+                                                                                                                                                          └MediaQuery(MediaQueryData(size: Size(800.0, 600.0), devicePixelRatio: 3.0, textScaler: SystemTextScaler (no scaling), platformBrightness: Brightness.light, padding: EdgeInsets.zero, viewPadding: EdgeInsets.zero, viewInsets: EdgeInsets.zero, systemGestureInsets: EdgeInsets.zero, alwaysUse24HourFormat: false, accessibleNavigation: false, highContrast: false, onOffSwitchLabels: false, disableAnimations: false, invertColors: false, boldText: false, navigationMode: traditional, gestureSettings: DeviceGestureSettings(touchSlop: null), displayFeatures: [], supportsShowingSystemContextMenu: false, lineHeightScaleFactorOverride: null, letterSpacingOverride: null, wordSpacingOverride: null, paragraphSpacingOverride: null, displayCornerRadii: null))
+                                                                                                                                                           └_FloatingActionButtonTransition(state: _FloatingActionButtonTransitionState#4356f(tickers: tracking 1 ticker))
+                                                                                                                                                            └Stack(alignment: Alignment.centerRight, fit: loose, dependencies: [Directionality], renderObject: RenderStack#5a011 relayoutBoundary=up1)
+                                                                                                                                                             └ScaleTransition(listenable: AnimationMin<double>(_AnimationSwap<double>(AnimationController#ad89d(⏭ 1.000; paused)➩CurveTween(curve: FlippedCurve(Interval(0.5⋯1.0)➩Cubic(0.25, 0.10, 0.25, 1.00)))➩1.0➪ReverseAnimation, AnimationController#ad89d(⏭ 1.000; paused)➩CurveTween(curve: Interval(0.5⋯1.0)➩Cubic(0.25, 0.10, 0.25, 1.00))➩1.0), AnimationController#1f4b5(⏮ 0.000; paused)➩Cubic(0.42, 0.00, 1.00, 1.00)), state: _AnimatedState#216d5)
+                                                                                                                                                              └Transform(dependencies: [Directionality], renderObject: RenderTransform#4c178 relayoutBoundary=up2)
+                                                                                                                                                               └RotationTransition(listenable: AnimationController#1f4b5(⏮ 0.000; paused)➩CurveTween(curve: Cubic(0.42, 0.00, 1.00, 1.00))➩Tween<double>(0.875 → 1.0)➩0.875➩TrainHoppingAnimation(next: _AnimationSwap<double>(AnimationController#ad89d(⏭ 1.000; paused)➩Tween<double>(0.75 → 1.0)➩1.0, AnimationController#ad89d(⏭ 1.000; paused)➩CurveTween(curve: Threshold)➩1.0➪ReverseAnimation)), state: _AnimatedState#12ed4)
+                                                                                                                                                                └Transform(dependencies: [Directionality], renderObject: RenderTransform#4fc8c relayoutBoundary=up3 NEEDS-PAINT)
+
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Contact Me": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///D:/portfolio/test/widget_test.dart:35:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/portfolio/test/widget_test.dart line 35
+The test description was:
+  Portfolio loads and builds without exceptions
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: Portfolio loads and builds without exceptions [E]
+  Test failed. See exception logs above.
+  The test description was: Portfolio loads and builds without exceptions
+  
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  D:/portfolio/test/widget_test.dart: Portfolio loads and builds without exceptions
