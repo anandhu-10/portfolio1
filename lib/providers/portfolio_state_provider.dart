@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../data/portfolio_data.dart';
 import '../models/portfolio_state_model.dart';
@@ -15,6 +17,14 @@ class PortfolioStateProvider extends ChangeNotifier {
   PortfolioStateModel get state => _state;
   bool get isLoading => _isLoading;
   bool get editMode => _editMode;
+
+  bool get _isFirebaseEnabled {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
 
   PortfolioStateProvider() {
     _initData();
@@ -34,28 +44,60 @@ class PortfolioStateProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final localJson = prefs.getString('portfolio_data');
+    bool loaded = false;
+    bool loadedFromFirestore = false;
 
-      if (localJson != null && localJson.isNotEmpty) {
-        // Load from LocalStorage
-        _state = PortfolioStateModel.fromJson(jsonDecode(localJson) as Map<String, dynamic>);
-      } else {
-        // Try to load from assets/data/portfolio_data.json
-        try {
-          final assetJson = await rootBundle.loadString('assets/data/portfolio_data.json');
-          if (assetJson.isNotEmpty) {
-            _state = PortfolioStateModel.fromJson(jsonDecode(assetJson) as Map<String, dynamic>);
-          } else {
-            _loadDefaults();
-          }
-        } catch (_) {
-          _loadDefaults();
+    // 1. Try loading from Firebase Firestore
+    if (_isFirebaseEnabled) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('portfolios')
+            .doc('main_portfolio')
+            .get();
+        if (doc.exists && doc.data() != null) {
+          _state = PortfolioStateModel.fromJson(doc.data()!);
+          loaded = true;
+          loadedFromFirestore = true;
         }
+      } catch (e) {
+        debugPrint('Failed to load portfolio from Firestore: $e');
       }
-    } catch (_) {
+    }
+
+    // 2. Fallback to LocalStorage
+    if (!loaded) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final localJson = prefs.getString('portfolio_data');
+
+        if (localJson != null && localJson.isNotEmpty) {
+          _state = PortfolioStateModel.fromJson(jsonDecode(localJson) as Map<String, dynamic>);
+          loaded = true;
+        } else {
+          // 3. Fallback to assets JSON file
+          try {
+            final assetJson = await rootBundle.loadString('assets/data/portfolio_data.json');
+            if (assetJson.isNotEmpty) {
+              _state = PortfolioStateModel.fromJson(jsonDecode(assetJson) as Map<String, dynamic>);
+              loaded = true;
+            }
+          } catch (_) {}
+        }
+      } catch (_) {}
+    }
+
+    // 4. Default hardcoded fallback
+    if (!loaded) {
       _loadDefaults();
+      if (_isFirebaseEnabled) {
+        await _saveToFirestore();
+      }
+    } else {
+      // If we loaded successfully from local storage or assets but Firebase is enabled,
+      // upload this local data to Firestore to keep them in sync
+      if (_isFirebaseEnabled && !loadedFromFirestore) {
+        await _saveToFirestore();
+      }
     }
 
     _isLoading = false;
@@ -158,11 +200,28 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   Future<void> saveToLocalStorage() async {
+    // 1. Save locally to SharedPreferences
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('portfolio_data', jsonEncode(_state.toJson()));
     } catch (e) {
       debugPrint('Failed to save to local storage: $e');
+    }
+
+    // 2. Save to Firestore
+    if (_isFirebaseEnabled) {
+      await _saveToFirestore();
+    }
+  }
+
+  Future<void> _saveToFirestore() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('portfolios')
+          .doc('main_portfolio')
+          .set(_state.toJson());
+    } catch (e) {
+      debugPrint('Failed to save to Firestore: $e');
     }
   }
 
@@ -176,6 +235,11 @@ class PortfolioStateProvider extends ChangeNotifier {
     } catch (_) {}
 
     _loadDefaults();
+
+    if (_isFirebaseEnabled) {
+      await _saveToFirestore();
+    }
+
     _isLoading = false;
     notifyListeners();
   }

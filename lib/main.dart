@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'theme/app_theme.dart';
 import 'utils/scroll_controller_provider.dart';
@@ -18,8 +20,15 @@ import 'sections/footer_section.dart';
 import 'providers/portfolio_state_provider.dart';
 import 'pages/admin_settings_page.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+  }
   runApp(const MyApp());
 }
 
