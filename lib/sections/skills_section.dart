@@ -83,7 +83,7 @@ class SkillsSection extends StatelessWidget {
                               child: IconButton(
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
-                                onPressed: () => showDialog(
+                                onPressed: () => showDialog<void>(
                                   context: context,
                                   builder: (context) => EditSkillDialog(
                                     initialSkill: skill,
@@ -136,7 +136,7 @@ class SkillsSection extends StatelessWidget {
             ),
             if (provider.editMode)
               EditSectionButton(
-                onTap: () => showDialog(
+                onTap: () => showDialog<void>(
                   context: context,
                   builder: (context) => EditSkillDialog(
                     onSave: (s) => provider.addSkill(s),

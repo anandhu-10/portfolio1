@@ -72,7 +72,7 @@ class ExperienceSection extends StatelessWidget {
                               child: IconButton(
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
-                                onPressed: () => showDialog(
+                                onPressed: () => showDialog<void>(
                                   context: context,
                                   builder: (context) => EditExperienceDialog(
                                     initialExperience: data,
@@ -125,7 +125,7 @@ class ExperienceSection extends StatelessWidget {
             ),
             if (provider.editMode)
               EditSectionButton(
-                onTap: () => showDialog(
+                onTap: () => showDialog<void>(
                   context: context,
                   builder: (context) => EditExperienceDialog(
                     onSave: (e) => provider.addExperience(e),

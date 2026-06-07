@@ -89,7 +89,7 @@ class PortfolioStateProvider extends ChangeNotifier {
 
     final skills = PortfolioData.skills.map((e) {
       final Color color = e['color'] as Color;
-      final int colorValue = color.value;
+      final int colorValue = color.toARGB32();
       final IconData icon = e['icon'] as IconData;
       return SkillModel(
         name: e['name'] as String,

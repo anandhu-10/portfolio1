@@ -171,7 +171,7 @@ Sender email: ${_emailController.text.trim()}
             ),
             if (provider.editMode)
               EditSectionButton(
-                onTap: () => showDialog(
+                onTap: () => showDialog<void>(
                   context: context,
                   builder: (context) => EditContactDialog(
                     initialContact: contact,

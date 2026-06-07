@@ -106,7 +106,7 @@ class HeroSection extends StatelessWidget {
             ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0, duration: 400.ms),
             if (provider.editMode)
               EditSectionButton(
-                onTap: () => showDialog(
+                onTap: () => showDialog<void>(
                   context: context,
                   builder: (context) => EditProfileDialog(
                     initialProfile: profile,

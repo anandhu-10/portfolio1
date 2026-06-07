@@ -510,7 +510,7 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<IconOption>(
-              value: _selectedIcon,
+              initialValue: _selectedIcon,
               decoration: const InputDecoration(labelText: 'Skill Icon'),
               items: selectableIcons.map((opt) {
                 return DropdownMenuItem<IconOption>(
@@ -528,7 +528,7 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<ColorOption>(
-              value: _selectedColor,
+              initialValue: _selectedColor,
               decoration: const InputDecoration(labelText: 'Brand Color'),
               items: selectableColors.map((opt) {
                 return DropdownMenuItem<ColorOption>(
@@ -652,7 +652,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _category,
+              initialValue: _category,
               decoration: const InputDecoration(labelText: 'Project Category'),
               items: const [
                 DropdownMenuItem(value: 'Flutter', child: Text('Flutter')),
@@ -893,7 +893,7 @@ class _EditExperienceDialogState extends State<EditExperienceDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<IconOption>(
-              value: _selectedIcon,
+              initialValue: _selectedIcon,
               decoration: const InputDecoration(labelText: 'Milestone Icon'),
               items: selectableIcons.map((opt) {
                 return DropdownMenuItem<IconOption>(

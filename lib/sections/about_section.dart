@@ -103,7 +103,7 @@ class AboutSection extends StatelessWidget {
             ),
             if (provider.editMode)
               EditSectionButton(
-                onTap: () => showDialog(
+                onTap: () => showDialog<void>(
                   context: context,
                   builder: (context) => EditAboutDialog(
                     initialAbout: about,

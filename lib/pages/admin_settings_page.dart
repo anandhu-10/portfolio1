@@ -79,7 +79,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   }
 
   void _confirmReset(BuildContext context, PortfolioStateProvider provider) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -255,7 +255,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                             subtitle: const Text('Overlay interactive edit icons directly on the home page.', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
                             trailing: Switch(
                               value: provider.editMode,
-                              activeColor: AppTheme.primary,
+                              activeThumbColor: AppTheme.primary,
                               onChanged: (val) => provider.setEditMode(val),
                             ),
                           ),

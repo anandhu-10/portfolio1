@@ -71,7 +71,7 @@ class CertificationsSection extends StatelessWidget {
                               child: IconButton(
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
-                                onPressed: () => showDialog(
+                                onPressed: () => showDialog<void>(
                                   context: context,
                                   builder: (context) => EditCertificationDialog(
                                     initialCert: cert,
@@ -124,7 +124,7 @@ class CertificationsSection extends StatelessWidget {
             ),
             if (provider.editMode)
               EditSectionButton(
-                onTap: () => showDialog(
+                onTap: () => showDialog<void>(
                   context: context,
                   builder: (context) => EditCertificationDialog(
                     onSave: (c) => provider.addCertification(c),

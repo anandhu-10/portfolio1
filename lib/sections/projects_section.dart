@@ -95,7 +95,7 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                               child: IconButton(
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.edit_rounded, size: 14, color: AppTheme.primary),
-                                onPressed: () => showDialog(
+                                onPressed: () => showDialog<void>(
                                   context: context,
                                   builder: (context) => EditProjectDialog(
                                     initialProject: project,
@@ -148,7 +148,7 @@ class _ProjectsSectionState extends State<ProjectsSection> {
             ),
             if (provider.editMode)
               EditSectionButton(
-                onTap: () => showDialog(
+                onTap: () => showDialog<void>(
                   context: context,
                   builder: (context) => EditProjectDialog(
                     onSave: (p) => provider.addProject(p),
