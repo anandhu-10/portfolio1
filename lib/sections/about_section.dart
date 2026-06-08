@@ -22,6 +22,10 @@ class AboutSection extends StatelessWidget {
     final horizontalPadding = isDesktop ? size.width * 0.08 : (isTablet ? 48.0 : 24.0);
     final verticalPadding = isDesktop ? 100.0 : (isTablet ? 80.0 : 60.0);
 
+    final isMobile = size.width < 640;
+    final cardPadding = isMobile ? 18.0 : 24.0;
+    final bioCardPadding = isMobile ? 20.0 : 32.0;
+
     return Container(
       width: double.infinity,
       color: const Color(0xFF0F172A).withValues(alpha: 0.4),
@@ -40,16 +44,16 @@ class AboutSection extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 6,
-                  child: _buildBioCard(context, about),
+                  child: _buildBioCard(context, about, bioCardPadding),
                 ),
                 const SizedBox(width: 32),
                 Expanded(
                   flex: 4,
                   child: Column(
                     children: [
-                      _buildEducationCard(context, about),
+                      _buildEducationCard(context, about, cardPadding),
                       const SizedBox(height: 24),
-                      _buildGoalsCard(context, about),
+                      _buildGoalsCard(context, about, cardPadding),
                     ],
                   ),
                 ),
@@ -57,25 +61,25 @@ class AboutSection extends StatelessWidget {
             ),
             tablet: Column(
               children: [
-                _buildBioCard(context, about),
+                _buildBioCard(context, about, bioCardPadding),
                 const SizedBox(height: 24),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildEducationCard(context, about)),
+                    Expanded(child: _buildEducationCard(context, about, cardPadding)),
                     const SizedBox(width: 24),
-                    Expanded(child: _buildGoalsCard(context, about)),
+                    Expanded(child: _buildGoalsCard(context, about, cardPadding)),
                   ],
                 ),
               ],
             ),
             mobile: Column(
               children: [
-                _buildBioCard(context, about),
+                _buildBioCard(context, about, bioCardPadding),
                 const SizedBox(height: 24),
-                _buildEducationCard(context, about),
+                _buildEducationCard(context, about, cardPadding),
                 const SizedBox(height: 24),
-                _buildGoalsCard(context, about),
+                _buildGoalsCard(context, about, cardPadding),
               ],
             ),
           ),
@@ -126,9 +130,9 @@ class AboutSection extends StatelessWidget {
     ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0, duration: 400.ms);
   }
 
-  Widget _buildBioCard(BuildContext context, AboutModel about) {
+  Widget _buildBioCard(BuildContext context, AboutModel about, double padding) {
     return GlassContainer(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -204,9 +208,9 @@ class AboutSection extends StatelessWidget {
     );
   }
 
-  Widget _buildEducationCard(BuildContext context, AboutModel about) {
+  Widget _buildEducationCard(BuildContext context, AboutModel about, double padding) {
     return GlassContainer(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -256,9 +260,9 @@ class AboutSection extends StatelessWidget {
     ).animate().fadeIn(delay: 300.ms, duration: 500.ms).slideY(begin: 0.1, end: 0, duration: 500.ms);
   }
 
-  Widget _buildGoalsCard(BuildContext context, AboutModel about) {
+  Widget _buildGoalsCard(BuildContext context, AboutModel about, double padding) {
     return GlassContainer(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

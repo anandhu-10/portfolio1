@@ -67,7 +67,13 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                 crossAxisCount: isDesktop ? 3 : (isTablet ? 2 : 1),
                 mainAxisSpacing: 28,
                 crossAxisSpacing: 28,
-                childAspectRatio: isDesktop ? 0.85 : 0.95,
+                childAspectRatio: isDesktop 
+                    ? 0.85 
+                    : (isTablet 
+                        ? 0.88 
+                        : (size.width < 360 
+                            ? 0.68 
+                            : (size.width < 480 ? 0.75 : 0.85))),
               ),
               itemBuilder: (context, index) {
                 final project = filteredProjects[index];

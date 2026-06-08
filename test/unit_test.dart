@@ -41,7 +41,7 @@ void main() {
     expect(provider.editMode, isFalse);
 
     // Attempt invalid authentication
-    bool success = provider.authenticate('admin123');
+    bool success = await provider.authenticate('admin123');
     expect(success, isFalse);
     expect(provider.isAdminAuthenticated, isFalse);
 
@@ -50,7 +50,7 @@ void main() {
     expect(provider.editMode, isFalse);
 
     // Authenticate with correct password
-    success = provider.authenticate('A1N1A1N1D1H1U1');
+    success = await provider.authenticate('A1N1A1N1D1H1U1');
     expect(success, isTrue);
     expect(provider.isAdminAuthenticated, isTrue);
 
@@ -62,5 +62,20 @@ void main() {
     provider.logoutAdmin();
     expect(provider.isAdminAuthenticated, isFalse);
     expect(provider.editMode, isFalse);
+
+    // Fail authentication 5 times to trigger lockout
+    for (int i = 0; i < 5; i++) {
+      expect(provider.isLockoutActive, isFalse);
+      await provider.authenticate('wrong_pass');
+    }
+
+    // Now lockout should be active
+    expect(provider.isLockoutActive, isTrue);
+    expect(provider.lockoutUntil, isNotNull);
+
+    // Correct password should fail during active lockout
+    bool successLocked = await provider.authenticate('A1N1A1N1D1H1U1');
+    expect(successLocked, isFalse);
+    expect(provider.isAdminAuthenticated, isFalse);
   });
 }

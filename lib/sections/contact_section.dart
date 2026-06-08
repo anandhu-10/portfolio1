@@ -108,6 +108,9 @@ Sender email: ${_emailController.text.trim()}
     final horizontalPadding = isDesktop ? size.width * 0.08 : (isTablet ? 48.0 : 24.0);
     final verticalPadding = isDesktop ? 100.0 : (isTablet ? 80.0 : 60.0);
 
+    final isMobile = size.width < 640;
+    final cardPadding = isMobile ? 20.0 : 32.0;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
@@ -128,7 +131,7 @@ Sender email: ${_emailController.text.trim()}
                 const SizedBox(width: 48),
                 Expanded(
                   flex: 6,
-                  child: _buildContactFormCard(contact.email, profile.name),
+                  child: _buildContactFormCard(contact.email, profile.name, cardPadding),
                 ),
               ],
             ),
@@ -136,14 +139,14 @@ Sender email: ${_emailController.text.trim()}
               children: [
                 _buildContactInfo(contact),
                 const SizedBox(height: 36),
-                _buildContactFormCard(contact.email, profile.name),
+                _buildContactFormCard(contact.email, profile.name, cardPadding),
               ],
             ),
             mobile: Column(
               children: [
                 _buildContactInfo(contact),
                 const SizedBox(height: 32),
-                _buildContactFormCard(contact.email, profile.name),
+                _buildContactFormCard(contact.email, profile.name, cardPadding),
               ],
             ),
           ),
@@ -333,9 +336,9 @@ Sender email: ${_emailController.text.trim()}
     );
   }
 
-  Widget _buildContactFormCard(String recipientEmail, String recipientName) {
+  Widget _buildContactFormCard(String recipientEmail, String recipientName, double padding) {
     return GlassContainer(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(padding),
       child: Form(
         key: _formKey,
         child: Column(

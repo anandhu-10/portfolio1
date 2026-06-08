@@ -42,11 +42,11 @@ class SkillsSection extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: skillsList.length,
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 260,
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: isDesktop ? 260 : 320,
                 mainAxisSpacing: 20,
                 crossAxisSpacing: 20,
-                childAspectRatio: 1.6,
+                childAspectRatio: isDesktop ? 1.6 : (size.width < 480 ? 2.2 : 1.6),
               ),
               itemBuilder: (context, index) {
                 final skill = skillsList[index];

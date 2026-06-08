@@ -13,19 +13,71 @@ class PortfolioStateProvider extends ChangeNotifier {
   bool _isLoading = true;
   bool _editMode = false;
   bool _isAdminAuthenticated = false;
+  int _failedAttempts = 0;
+  DateTime? _lockoutUntil;
+  bool _isLockoutActive = false;
 
   PortfolioStateModel get state => _state;
   bool get isLoading => _isLoading;
   bool get editMode => _editMode;
   bool get isAdminAuthenticated => _isAdminAuthenticated;
+  int get failedAttempts => _failedAttempts;
+  DateTime? get lockoutUntil => _lockoutUntil;
+  bool get isLockoutActive => _isLockoutActive;
 
-  bool authenticate(String password) {
-    if (password == 'A1N1A1N1D1H1U1') {
-      _isAdminAuthenticated = true;
-      notifyListeners();
-      return true;
+  void checkLockout() {
+    if (_lockoutUntil != null && DateTime.now().isBefore(_lockoutUntil!)) {
+      _isLockoutActive = true;
+    } else {
+      _isLockoutActive = false;
+      _lockoutUntil = null;
     }
-    return false;
+  }
+
+  Future<bool> authenticate(String password) async {
+    checkLockout();
+    if (_isLockoutActive) return false;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (password == 'A1N1A1N1D1H1U1') {
+        _isAdminAuthenticated = true;
+        _failedAttempts = 0;
+        _lockoutUntil = null;
+        _isLockoutActive = false;
+        await prefs.remove('failed_attempts');
+        await prefs.remove('lockout_until');
+        notifyListeners();
+        return true;
+      } else {
+        _failedAttempts++;
+        await prefs.setInt('failed_attempts', _failedAttempts);
+        if (_failedAttempts >= 5) {
+          _lockoutUntil = DateTime.now().add(const Duration(seconds: 30));
+          _isLockoutActive = true;
+          await prefs.setInt('lockout_until', _lockoutUntil!.millisecondsSinceEpoch);
+        }
+        notifyListeners();
+        return false;
+      }
+    } catch (_) {
+      if (password == 'A1N1A1N1D1H1U1') {
+        _isAdminAuthenticated = true;
+        _failedAttempts = 0;
+        _lockoutUntil = null;
+        _isLockoutActive = false;
+        notifyListeners();
+        return true;
+      } else {
+        _failedAttempts++;
+        if (_failedAttempts >= 5) {
+          _lockoutUntil = DateTime.now().add(const Duration(seconds: 30));
+          _isLockoutActive = true;
+        }
+        notifyListeners();
+        return false;
+      }
+    }
   }
 
   void logoutAdmin() {
@@ -67,6 +119,16 @@ class PortfolioStateProvider extends ChangeNotifier {
   Future<void> _initData() async {
     _isLoading = true;
     notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _failedAttempts = prefs.getInt('failed_attempts') ?? 0;
+      final lockoutMillis = prefs.getInt('lockout_until');
+      if (lockoutMillis != null) {
+        _lockoutUntil = DateTime.fromMillisecondsSinceEpoch(lockoutMillis);
+      }
+      checkLockout();
+    } catch (_) {}
 
     bool loaded = false;
     bool loadedFromFirestore = false;

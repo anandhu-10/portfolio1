@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -16,23 +17,108 @@ class AdminSettingsPage extends StatefulWidget {
 class _AdminSettingsPageState extends State<AdminSettingsPage> {
   final _passwordController = TextEditingController();
   String? _authError;
+  bool _obscurePassword = true;
+  bool _isLoggingIn = false;
+  int _secondsRemaining = 0;
+  Timer? _lockoutTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLockoutTimer();
+    });
+  }
+
+  void _checkLockoutTimer() {
+    final provider = Provider.of<PortfolioStateProvider>(context, listen: false);
+    provider.checkLockout();
+    if (provider.isLockoutActive) {
+      _startLockoutCountdown();
+    }
+  }
+
+  void _startLockoutCountdown() {
+    _lockoutTimer?.cancel();
+    final provider = Provider.of<PortfolioStateProvider>(context, listen: false);
+    _secondsRemaining = provider.lockoutUntil!.difference(DateTime.now()).inSeconds;
+    
+    setState(() {
+      _authError = 'Too many failed attempts. Locked out for $_secondsRemaining seconds.';
+    });
+
+    _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final provider = Provider.of<PortfolioStateProvider>(context, listen: false);
+      provider.checkLockout();
+      if (!provider.isLockoutActive || !mounted) {
+        timer.cancel();
+        if (mounted) {
+          setState(() {
+            _secondsRemaining = 0;
+            _authError = null;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _secondsRemaining = provider.lockoutUntil!.difference(DateTime.now()).inSeconds;
+            _authError = 'Too many failed attempts. Locked out for $_secondsRemaining seconds.';
+          });
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _lockoutTimer?.cancel();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _verifyPassword() {
+  Future<void> _verifyPassword() async {
     final provider = Provider.of<PortfolioStateProvider>(context, listen: false);
-    if (provider.authenticate(_passwordController.text)) {
+    provider.checkLockout();
+    if (provider.isLockoutActive) {
+      _startLockoutCountdown();
+      return;
+    }
+
+    if (_passwordController.text.isEmpty) {
       setState(() {
-        _authError = null;
+        _authError = 'Password cannot be empty.';
       });
+      return;
+    }
+
+    setState(() {
+      _isLoggingIn = true;
+      _authError = null;
+    });
+
+    // Simulated latency for loading feedback and to slow down rapid brute forcing
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+
+    final success = await provider.authenticate(_passwordController.text);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoggingIn = false;
+    });
+
+    if (success) {
+      _passwordController.clear();
     } else {
-      setState(() {
-        _authError = 'Incorrect password.';
-      });
+      provider.checkLockout();
+      if (provider.isLockoutActive) {
+        _startLockoutCountdown();
+      } else {
+        final remaining = 5 - provider.failedAttempts;
+        setState(() {
+          _authError = 'Incorrect password. $remaining attempts remaining.';
+        });
+      }
     }
   }
 
@@ -165,51 +251,77 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                     // Password Prompt Card
                     GlassContainer(
                       padding: const EdgeInsets.all(32),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Authentication Required',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
+                      child: AutofillGroup(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text(
+                              'Authentication Required',
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Enter the password to activate edit triggers and manage database features.',
-                            style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 24),
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              errorText: _authError,
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Enter the password to activate edit triggers and manage database features.',
+                              style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                              textAlign: TextAlign.center,
                             ),
-                            onFieldSubmitted: (_) => _verifyPassword(),
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: _verifyPassword,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primary,
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            const SizedBox(height: 24),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              enabled: !_isLoggingIn && !provider.isLockoutActive,
+                              autofillHints: const [AutofillHints.password],
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                errorText: _authError,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  onPressed: _isLoggingIn || provider.isLockoutActive
+                                      ? null
+                                      : () => setState(() => _obscurePassword = !_obscurePassword),
+                                ),
+                              ),
+                              onFieldSubmitted: _isLoggingIn || provider.isLockoutActive
+                                  ? null
+                                  : (_) => _verifyPassword(),
                             ),
-                            child: const Text('Unlock Settings'),
-                          ),
-                          const SizedBox(height: 12),
-                          TextButton(
-                            onPressed: () => Navigator.pushReplacementNamed(context, '/'),
-                            child: const Text('Back to Portfolio', style: TextStyle(color: AppTheme.textSecondary)),
-                          ),
-                        ],
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: _isLoggingIn || provider.isLockoutActive ? null : _verifyPassword,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primary,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: _isLoggingIn
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                                      ),
+                                    )
+                                  : const Text('Unlock Settings'),
+                            ),
+                            const SizedBox(height: 12),
+                            TextButton(
+                              onPressed: _isLoggingIn ? null : () => Navigator.pushReplacementNamed(context, '/'),
+                              child: const Text('Back to Portfolio', style: TextStyle(color: AppTheme.textSecondary)),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ] else ...[
@@ -309,6 +421,24 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             child: const Text('Return to Portfolio'),
+                          ),
+                          const SizedBox(height: 12),
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              provider.logoutAdmin();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Logged out of Admin Mode.'),
+                                  backgroundColor: AppTheme.secondary,
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.logout, size: 16),
+                            label: const Text('Logout Admin'),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.redAccent),
+                              foregroundColor: Colors.redAccent,
+                            ),
                           ),
                         ],
                       ),
