@@ -6,9 +6,6 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
                  (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
 
 _flutter.loader.load({
-  serviceWorkerSettings: {
-    serviceWorkerVersion: {{flutter_service_worker_version}},
-  },
   onEntrypointLoaded: async function(engineInitializer) {
     const config = {
       renderer: isMobile ? "html" : "canvaskit"

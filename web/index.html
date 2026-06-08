@@ -3,6 +3,21 @@
 <head>
   <base href="$FLUTTER_BASE_HREF">
 
+  <script>
+    // Immediately unregister all service workers to clear aggressive caching
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister().then(function(success) {
+            if (success) {
+              console.log('Unregistered stale service worker.');
+            }
+          });
+        }
+      });
+    }
+  </script>
+
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Anandhu Anil portfolio - Computer Engineering student and Flutter developer from Kerala, India. Projects, skills, certificates, experience, resume, and contact links.">
