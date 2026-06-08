@@ -8,3 +8,12 @@ void reloadApp() {
     // ignore
   }
 }
+
+/// Web implementation of launchInNewTab to open url in a new tab without reloads.
+void launchInNewTab(String url) {
+  try {
+    js.context.callMethod('open', [url, '_blank']);
+  } catch (e) {
+    // ignore
+  }
+}

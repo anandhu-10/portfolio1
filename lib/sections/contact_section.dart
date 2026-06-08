@@ -9,6 +9,7 @@ import '../theme/app_theme.dart';
 import '../utils/responsive_layout.dart';
 import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/glass_container.dart';
+import '../utils/platform_helper.dart';
 
 class ContactSection extends StatefulWidget {
   const ContactSection({super.key});
@@ -332,7 +333,31 @@ Sender email: ${_emailController.text.trim()}
     );
   }
 
+  Widget _buildLinkedInIcon({double size = 18.0}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0077B5),
+        borderRadius: BorderRadius.circular(size * 0.18),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        'in',
+        style: TextStyle(
+          color: Colors.white,
+          fontFamily: 'Outfit',
+          fontWeight: FontWeight.w800,
+          fontSize: size * 0.65,
+          height: 1.0,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSocialIcon(IconData icon, String url, String label) {
+    final bool isLinkedIn = label.toLowerCase() == 'linkedin';
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1E293B).withValues(alpha: 0.6),
@@ -340,14 +365,17 @@ Sender email: ${_emailController.text.trim()}
         border: Border.all(color: AppTheme.border, width: 1),
       ),
       child: IconButton(
-        icon: Icon(icon, size: 18, color: AppTheme.textSecondary),
-        onPressed: () => _launchUrl(url),
+        icon: isLinkedIn 
+            ? _buildLinkedInIcon(size: 16)
+            : Icon(icon, size: 18, color: AppTheme.textSecondary),
+        onPressed: () => launchInNewTab(url),
         hoverColor: AppTheme.primary.withValues(alpha: 0.12),
         splashRadius: 22,
         tooltip: label,
       ),
     );
   }
+
 
   Widget _buildContactFormCard(String recipientEmail, String recipientName, double padding) {
     return GlassContainer(

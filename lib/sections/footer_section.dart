@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../data/portfolio_data.dart';
 import '../theme/app_theme.dart';
 import '../utils/scroll_controller_provider.dart';
+import '../utils/platform_helper.dart';
 
 class FooterSection extends StatelessWidget {
   const FooterSection({super.key});
@@ -133,16 +134,42 @@ class FooterSection extends StatelessWidget {
     );
   }
 
+  Widget _buildLinkedInIcon({double size = 16.0}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0077B5),
+        borderRadius: BorderRadius.circular(size * 0.18),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        'in',
+        style: TextStyle(
+          color: Colors.white,
+          fontFamily: 'Outfit',
+          fontWeight: FontWeight.w800,
+          fontSize: size * 0.65,
+          height: 1.0,
+        ),
+      ),
+    );
+  }
+
   Widget _buildFooterSocial(IconData icon, String url) {
+    final bool isLinkedIn = url.contains('linkedin');
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => _launchUrl(url),
-        child: Icon(
-          icon,
-          size: 16,
-          color: AppTheme.textSecondary,
-        ),
+        onTap: () => launchInNewTab(url),
+        child: isLinkedIn
+            ? _buildLinkedInIcon(size: 16)
+            : Icon(
+                icon,
+                size: 16,
+                color: AppTheme.textSecondary,
+              ),
       ),
     );
   }
