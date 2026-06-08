@@ -119,53 +119,60 @@ class _CertificationCardState extends State<CertificationCard> {
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-
-              // Icon Badge Top Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.secondary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.verified,
-                      size: 22,
-                      color: AppTheme.secondary,
+                  // Icon Badge Top Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppTheme.secondary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.verified,
+                          size: 22,
+                          color: AppTheme.secondary,
+                        ),
+                      ),
+                      Icon(
+                        Icons.emoji_events,
+                        size: 18,
+                        color: _isHovered ? AppTheme.primary : AppTheme.textMuted.withValues(alpha: 0.3),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // Certification Title
+                  Text(
+                    widget.certification.title,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                      height: 1.3,
                     ),
                   ),
-                  Icon(
-                    Icons.emoji_events,
-                    size: 18,
-                    color: _isHovered ? AppTheme.primary : AppTheme.textMuted.withValues(alpha: 0.3),
+                  const SizedBox(height: 8),
+                  // Organization
+                  Text(
+                    widget.certification.issuingOrganization,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 20),
-              // Certification Title
-              Expanded(
-                child: Text(
-                  widget.certification.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                    height: 1.3,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Organization
-              Text(
-                widget.certification.issuingOrganization,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
               ),
               const SizedBox(height: 20),
               // View Button

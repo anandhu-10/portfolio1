@@ -12,10 +12,27 @@ class PortfolioStateProvider extends ChangeNotifier {
   late PortfolioStateModel _state;
   bool _isLoading = true;
   bool _editMode = false;
+  bool _isAdminAuthenticated = false;
 
   PortfolioStateModel get state => _state;
   bool get isLoading => _isLoading;
   bool get editMode => _editMode;
+  bool get isAdminAuthenticated => _isAdminAuthenticated;
+
+  bool authenticate(String password) {
+    if (password == 'A1N1A1N1D1H1U1') {
+      _isAdminAuthenticated = true;
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  void logoutAdmin() {
+    _isAdminAuthenticated = false;
+    _editMode = false;
+    notifyListeners();
+  }
 
   bool get _isFirebaseEnabled {
     try {
@@ -30,12 +47,20 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   void toggleEditMode() {
-    _editMode = !_editMode;
+    if (!_isAdminAuthenticated) {
+      _editMode = false;
+    } else {
+      _editMode = !_editMode;
+    }
     notifyListeners();
   }
 
   void setEditMode(bool value) {
-    _editMode = value;
+    if (value && !_isAdminAuthenticated) {
+      _editMode = false;
+    } else {
+      _editMode = value;
+    }
     notifyListeners();
   }
 
@@ -244,6 +269,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   Future<void> resetToDefaults() async {
+    if (!_isAdminAuthenticated) return;
     _isLoading = true;
     notifyListeners();
 
@@ -264,6 +290,7 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // PROFILE EDITS
   void updateProfile(ProfileModel newProfile) {
+    if (!_isAdminAuthenticated) return;
     _state = _state.copyWith(profile: newProfile);
     saveToLocalStorage();
     notifyListeners();
@@ -271,6 +298,7 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // ABOUT EDITS
   void updateAbout(AboutModel newAbout) {
+    if (!_isAdminAuthenticated) return;
     _state = _state.copyWith(about: newAbout);
     saveToLocalStorage();
     notifyListeners();
@@ -278,6 +306,7 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // CONTACT EDITS
   void updateContact(ContactModel newContact) {
+    if (!_isAdminAuthenticated) return;
     _state = _state.copyWith(contact: newContact);
     saveToLocalStorage();
     notifyListeners();
@@ -285,12 +314,14 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // SKILLS CRUD
   void addSkill(SkillModel skill) {
+    if (!_isAdminAuthenticated) return;
     _state.skills.add(skill);
     saveToLocalStorage();
     notifyListeners();
   }
 
   void editSkill(int index, SkillModel skill) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.skills.length) {
       _state.skills[index] = skill;
       saveToLocalStorage();
@@ -299,6 +330,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   void deleteSkill(int index) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.skills.length) {
       _state.skills.removeAt(index);
       saveToLocalStorage();
@@ -308,12 +340,14 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // PROJECTS CRUD
   void addProject(ProjectModel project) {
+    if (!_isAdminAuthenticated) return;
     _state.projects.add(project);
     saveToLocalStorage();
     notifyListeners();
   }
 
   void editProject(int index, ProjectModel project) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.projects.length) {
       _state.projects[index] = project;
       saveToLocalStorage();
@@ -322,6 +356,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   void deleteProject(int index) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.projects.length) {
       _state.projects.removeAt(index);
       saveToLocalStorage();
@@ -331,12 +366,14 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // CERTIFICATIONS CRUD
   void addCertification(CertificationModel cert) {
+    if (!_isAdminAuthenticated) return;
     _state.certifications.add(cert);
     saveToLocalStorage();
     notifyListeners();
   }
 
   void editCertification(int index, CertificationModel cert) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.certifications.length) {
       _state.certifications[index] = cert;
       saveToLocalStorage();
@@ -345,6 +382,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   void deleteCertification(int index) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.certifications.length) {
       _state.certifications.removeAt(index);
       saveToLocalStorage();
@@ -354,12 +392,14 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // EXPERIENCE CRUD
   void addExperience(ExperienceModel exp) {
+    if (!_isAdminAuthenticated) return;
     _state.experience.add(exp);
     saveToLocalStorage();
     notifyListeners();
   }
 
   void editExperience(int index, ExperienceModel exp) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.experience.length) {
       _state.experience[index] = exp;
       saveToLocalStorage();
@@ -368,6 +408,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   void deleteExperience(int index) {
+    if (!_isAdminAuthenticated) return;
     if (index >= 0 && index < _state.experience.length) {
       _state.experience.removeAt(index);
       saveToLocalStorage();
@@ -394,6 +435,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   Future<bool> importConfig(String jsonString) async {
+    if (!_isAdminAuthenticated) return false;
     try {
       final Map<String, dynamic> data = jsonDecode(jsonString) as Map<String, dynamic>;
       // Basic validation

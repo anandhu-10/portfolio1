@@ -37,68 +37,109 @@ class CertificationsSection extends StatelessWidget {
               ),
             )
           else
-            // Responsive Grid View for Certificates
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: certifications.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
-                mainAxisSpacing: 20,
-                crossAxisSpacing: 20,
-                childAspectRatio: isDesktop ? 1.05 : 1.25,
-              ),
-              itemBuilder: (context, index) {
-                final cert = certifications[index];
-                
-                final widgetCard = CertificationCard(
-                  certification: cert,
-                ).animate().fadeIn(delay: (index * 75).ms, duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms);
+            // Responsive dynamic layout for Certificates
+            Builder(
+              builder: (context) {
+                final int crossAxisCount = isDesktop ? 4 : (isTablet ? 2 : 1);
+                final List<Widget> rows = [];
+                for (int i = 0; i < certifications.length; i += crossAxisCount) {
+                  final int end = (i + crossAxisCount < certifications.length)
+                      ? i + crossAxisCount
+                      : certifications.length;
+                  final List<Widget> rowCards = [];
+                  for (int j = i; j < end; j++) {
+                    final cert = certifications[j];
+                    final widgetCard = CertificationCard(
+                      certification: cert,
+                    ).animate().fadeIn(delay: (j * 75).ms, duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms);
 
-                if (stateProvider.editMode) {
-                  return Stack(
-                    children: [
-                      widgetCard,
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircleAvatar(
-                              radius: 14,
-                              backgroundColor: AppTheme.cardBg,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
-                                onPressed: () => showDialog<void>(
-                                  context: context,
-                                  builder: (context) => EditCertificationDialog(
-                                    initialCert: cert,
-                                    onSave: (c) => stateProvider.editCertification(index, c),
+                    Widget cardWithEdit = widgetCard;
+                    if (stateProvider.editMode) {
+                      cardWithEdit = Stack(
+                        children: [
+                          widgetCard,
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: AppTheme.cardBg,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
+                                    onPressed: () => showDialog<void>(
+                                      context: context,
+                                      builder: (context) => EditCertificationDialog(
+                                        initialCert: cert,
+                                        onSave: (c) => stateProvider.editCertification(j, c),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                                const SizedBox(width: 6),
+                                CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: AppTheme.cardBg,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
+                                    onPressed: () => stateProvider.deleteCertification(j),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 6),
-                            CircleAvatar(
-                              radius: 14,
-                              backgroundColor: AppTheme.cardBg,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
-                                onPressed: () => stateProvider.deleteCertification(index),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      );
+                    }
+                    rowCards.add(
+                      Expanded(
+                        child: cardWithEdit,
                       ),
-                    ],
+                    );
+                  }
+                  
+                  // Fill remaining spaces in the row to keep alignment
+                  final int missing = crossAxisCount - rowCards.length;
+                  for (int m = 0; m < missing; m++) {
+                    rowCards.add(const Expanded(child: SizedBox()));
+                  }
+                  
+                  // Add Spacing between elements in a row
+                  final List<Widget> rowChildren = [];
+                  for (int rIndex = 0; rIndex < rowCards.length; rIndex++) {
+                    if (rIndex > 0) {
+                      rowChildren.add(const SizedBox(width: 20));
+                    }
+                    rowChildren.add(rowCards[rIndex]);
+                  }
+                  
+                  rows.add(
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: rowChildren,
+                      ),
+                    ),
                   );
                 }
-
-                return widgetCard;
-              },
+                
+                // Add Spacing between rows in a column
+                final List<Widget> columnChildren = [];
+                for (int cIndex = 0; cIndex < rows.length; cIndex++) {
+                  if (cIndex > 0) {
+                    columnChildren.add(const SizedBox(height: 20));
+                  }
+                  columnChildren.add(rows[cIndex]);
+                }
+                
+                return Column(
+                  children: columnChildren,
+                );
+              }
             ),
         ],
       ),

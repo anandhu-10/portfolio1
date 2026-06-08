@@ -102,6 +102,84 @@
     link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap';
     document.head.appendChild(link);
   </script>
+  <script>
+    (function() {
+      // Prevent infinite reload loops by tracking reload times in sessionStorage
+      function safeReload(reason) {
+        try {
+          const now = Date.now();
+          const lastReloadStr = sessionStorage.getItem('last_webgl_reload');
+          const lastReload = lastReloadStr ? parseInt(lastReloadStr, 10) : 0;
+          
+          if (now - lastReload < 10000) {
+            console.error('WebGL context lost or graphics crash occurred, but page was reloaded recently. Stopping reload loop. Reason: ' + reason);
+            var errorBanner = document.getElementById('webgl-error-banner');
+            if (!errorBanner) {
+              errorBanner = document.createElement('div');
+              errorBanner.id = 'webgl-error-banner';
+              errorBanner.style.position = 'fixed';
+              errorBanner.style.bottom = '20px';
+              errorBanner.style.left = '50%';
+              errorBanner.style.transform = 'translateX(-50%)';
+              errorBanner.style.background = '#EF4444';
+              errorBanner.style.color = '#FFFFFF';
+              errorBanner.style.padding = '12px 24px';
+              errorBanner.style.borderRadius = '8px';
+              errorBanner.style.fontFamily = "'Outfit', sans-serif";
+              errorBanner.style.zIndex = '99999';
+              errorBanner.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+              errorBanner.style.fontSize = '14px';
+              errorBanner.style.fontWeight = '500';
+              errorBanner.innerHTML = 'Graphics issue detected. If the portfolio remains frozen, please try enabling hardware acceleration in browser settings.';
+              document.body.appendChild(errorBanner);
+            }
+            return;
+          }
+          
+          sessionStorage.setItem('last_webgl_reload', now.toString());
+          console.warn('WebGL context lost or graphics crash detected (' + reason + '). Reloading page...');
+          window.location.reload();
+        } catch (e) {
+          console.error('Failed to trigger safe reload:', e);
+          window.location.reload();
+        }
+      }
+
+      // 1. Capture WebGL context lost events in the capturing phase
+      window.addEventListener('webglcontextlost', function(event) {
+        event.preventDefault();
+        safeReload('webglcontextlost event');
+      }, true);
+
+      // 2. Watch visibility changes to detect context loss on resume
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          var canvases = document.getElementsByTagName('canvas');
+          for (var i = 0; i < canvases.length; i++) {
+            var canvas = canvases[i];
+            var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+            if (!gl || (gl.isContextLost && gl.isContextLost())) {
+              safeReload('context lost checked on visibility change');
+              break;
+            }
+          }
+        }
+      });
+
+      // 3. Catch unhandled errors related to WebGL, CanvasKit or Skia
+      window.addEventListener('error', function(event) {
+        var msg = event.message || '';
+        if (typeof msg === 'string' && (
+            msg.indexOf('WebGL') !== -1 || 
+            msg.indexOf('context lost') !== -1 || 
+            msg.indexOf('CanvasKit') !== -1 || 
+            msg.indexOf('skia') !== -1
+        )) {
+          safeReload('unhandled graphics runtime error: ' + msg);
+        }
+      }, true);
+    })();
+  </script>
 </head>
 <body>
   <!-- Custom Splash Preloader -->

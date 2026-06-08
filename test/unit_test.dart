@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:portfolio/models/portfolio_state_model.dart';
+import 'package:portfolio/providers/portfolio_state_provider.dart';
 import 'package:portfolio/widgets/admin/edit_dialogs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('test EditSkillDialog build', (WidgetTester tester) async {
@@ -26,5 +28,39 @@ void main() {
 
     await tester.pumpAndSettle();
     debugPrint('EditSkillDialog built successfully!');
+  });
+
+  test('PortfolioStateProvider authentication and guard tests', () async {
+    // Initialize mock shared preferences
+    SharedPreferences.setMockInitialValues({});
+
+    final provider = PortfolioStateProvider();
+
+    // Initial state
+    expect(provider.isAdminAuthenticated, isFalse);
+    expect(provider.editMode, isFalse);
+
+    // Attempt invalid authentication
+    bool success = provider.authenticate('admin123');
+    expect(success, isFalse);
+    expect(provider.isAdminAuthenticated, isFalse);
+
+    // Attempt enabling edit mode without auth
+    provider.setEditMode(true);
+    expect(provider.editMode, isFalse);
+
+    // Authenticate with correct password
+    success = provider.authenticate('A1N1A1N1D1H1U1');
+    expect(success, isTrue);
+    expect(provider.isAdminAuthenticated, isTrue);
+
+    // Enable edit mode now that we are authenticated
+    provider.setEditMode(true);
+    expect(provider.editMode, isTrue);
+
+    // Logout
+    provider.logoutAdmin();
+    expect(provider.isAdminAuthenticated, isFalse);
+    expect(provider.editMode, isFalse);
   });
 }

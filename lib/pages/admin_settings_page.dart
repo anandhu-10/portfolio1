@@ -15,7 +15,6 @@ class AdminSettingsPage extends StatefulWidget {
 
 class _AdminSettingsPageState extends State<AdminSettingsPage> {
   final _passwordController = TextEditingController();
-  bool _isAuthenticated = false;
   String? _authError;
 
   @override
@@ -25,14 +24,14 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   }
 
   void _verifyPassword() {
-    if (_passwordController.text == 'admin123') {
+    final provider = Provider.of<PortfolioStateProvider>(context, listen: false);
+    if (provider.authenticate(_passwordController.text)) {
       setState(() {
-        _isAuthenticated = true;
         _authError = null;
       });
     } else {
       setState(() {
-        _authError = 'Incorrect password. Try "admin123".';
+        _authError = 'Incorrect password.';
       });
     }
   }
@@ -162,7 +161,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                   ),
                   const SizedBox(height: 32),
 
-                  if (!_isAuthenticated) ...[
+                  if (!provider.isAdminAuthenticated) ...[
                     // Password Prompt Card
                     GlassContainer(
                       padding: const EdgeInsets.all(32),
