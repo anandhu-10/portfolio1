@@ -109,6 +109,7 @@ class AboutSection extends StatelessWidget {
               EditSectionButton(
                 onTap: () => showDialog<void>(
                   context: context,
+                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                   builder: (context) => EditAboutDialog(
                     initialAbout: about,
                     onSave: (a) => provider.updateAbout(a),

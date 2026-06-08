@@ -19,9 +19,77 @@ import 'sections/footer_section.dart';
 
 import 'providers/portfolio_state_provider.dart';
 import 'pages/admin_settings_page.dart';
+import 'utils/platform_helper.dart';
+import 'widgets/admin/session_timeout_listener.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Custom Error Boundary recovery screen for unexpected rendering crashes
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    debugPrint('Flutter rendering error: ${details.exception}');
+    debugPrint('Stacktrace: ${details.stack}');
+    
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B0F19),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 500),
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: const Color(0xFF151B2C),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.redAccent.withValues(alpha: 0.1),
+                  blurRadius: 24,
+                  spreadRadius: 4,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 64),
+                const SizedBox(height: 20),
+                const Text(
+                  'Application Exception',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'A rendering error occurred. The details have been logged and you can reload the page to restore the state.',
+                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () => reloadApp(),
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Reload Portfolio'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF38BDF8),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  };
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -53,6 +121,9 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.darkTheme,
             initialRoute: '/',
+            builder: (context, child) => SessionTimeoutListener(
+              child: child ?? const SizedBox(),
+            ),
             routes: {
               '/': (context) {
                 if (stateProvider.isLoading) {

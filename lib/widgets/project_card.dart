@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/portfolio_state_model.dart';
-
 import '../theme/app_theme.dart';
 import 'glass_container.dart';
 
@@ -33,6 +32,221 @@ class _ProjectCardState extends State<ProjectCard> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 640;
+
+    // Mobile View: Dynamic heights to prevent yellow-black overflow warnings
+    if (isMobile) {
+      return MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          child: GlassContainer(
+            borderColor: _isHovered ? AppTheme.primary.withValues(alpha: 0.6) : AppTheme.glassBorder,
+            boxShadow: _isHovered 
+                ? AppTheme.neonShadow(color: AppTheme.primary, blur: 20.0)
+                : AppTheme.glassShadow(),
+            padding: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Project Image Placeholder (with overlay icon/gradients)
+                Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    gradient: LinearGradient(
+                      colors: _isHovered
+                          ? [AppTheme.primary.withValues(alpha: 0.4), AppTheme.secondary.withValues(alpha: 0.4)]
+                          : [const Color(0xFF1E293B), const Color(0xFF0B0F19)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (widget.project.imageBase64.isNotEmpty)
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                            child: Image.memory(
+                              base64Decode(widget.project.imageBase64.split(',').last),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      else
+                        // Coding Icon or image placeholder
+                        AnimatedScale(
+                          scale: _isHovered ? 1.15 : 1.0,
+                          duration: const Duration(milliseconds: 350),
+                          curve: Curves.easeOut,
+                          child: Icon(
+                            widget.project.category == 'Flutter'
+                                ? Icons.smartphone
+                                : Icons.laptop,
+                            size: 50,
+                            color: _isHovered ? Colors.white : AppTheme.textSecondary.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      // Top indicator badge
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.secondary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppTheme.secondary.withValues(alpha: 0.4), width: 1),
+                          ),
+                          child: Text(
+                            widget.project.category,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.secondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Project Text Content
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.project.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.project.subtitle,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.project.description,
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Technology Tags
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: widget.project.technologies.map((tech) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E293B).withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppTheme.border, width: 0.8),
+                            ),
+                            child: Text(
+                              tech,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
+                      // Action buttons
+                      Row(
+                        children: [
+                          if (widget.project.githubUrl.isNotEmpty) ...[
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => _launchUrl(widget.project.githubUrl),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(color: AppTheme.textSecondary.withValues(alpha: 0.4)),
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.code, size: 14),
+                                    SizedBox(width: 4),
+                                    Text('GitHub', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (widget.project.liveUrl.isNotEmpty) ...[
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  gradient: AppTheme.primaryGradient,
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () => _launchUrl(widget.project.liveUrl),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: Colors.white,
+                                    shadowColor: Colors.transparent,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.open_in_new, size: 12),
+                                      SizedBox(width: 4),
+                                      Text('Live Demo', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Tablet/Desktop View: Fixed flex aspect-ratio layout
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),

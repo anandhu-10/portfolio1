@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/skill_card.dart';
 import 'package:provider/provider.dart';
+import '../utils/confirm_dialog.dart';
 
 class SkillsSection extends StatelessWidget {
   const SkillsSection({super.key});
@@ -85,6 +86,7 @@ class SkillsSection extends StatelessWidget {
                                 icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
                                 onPressed: () => showDialog<void>(
                                   context: context,
+                                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                                   builder: (context) => EditSkillDialog(
                                     initialSkill: skill,
                                     onSave: (s) => stateProvider.editSkill(index, s),
@@ -99,7 +101,16 @@ class SkillsSection extends StatelessWidget {
                               child: IconButton(
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
-                                onPressed: () => stateProvider.deleteSkill(index),
+                                onPressed: () async {
+                                  final confirmed = await showConfirmDeleteDialog(
+                                    context: context,
+                                    title: 'Delete Skill',
+                                    content: 'Are you sure you want to delete the skill "${skill.name}"? This action cannot be undone.',
+                                  );
+                                  if (confirmed) {
+                                    stateProvider.deleteSkill(index);
+                                  }
+                                },
                               ),
                             ),
                           ],
@@ -138,6 +149,7 @@ class SkillsSection extends StatelessWidget {
               EditSectionButton(
                 onTap: () => showDialog<void>(
                   context: context,
+                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                   builder: (context) => EditSkillDialog(
                     onSave: (s) => provider.addSkill(s),
                   ),

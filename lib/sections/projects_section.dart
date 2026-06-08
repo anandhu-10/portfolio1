@@ -6,6 +6,7 @@ import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/project_card.dart';
+import '../utils/confirm_dialog.dart';
 
 class ProjectsSection extends StatefulWidget {
   const ProjectsSection({super.key});
@@ -58,81 +59,109 @@ class _ProjectsSectionState extends State<ProjectsSection> {
               ),
             )
           else
-            // Projects Grid
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filteredProjects.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isDesktop ? 3 : (isTablet ? 2 : 1),
-                mainAxisSpacing: 28,
-                crossAxisSpacing: 28,
-                childAspectRatio: isDesktop 
-                    ? 0.85 
-                    : (isTablet 
-                        ? 0.88 
-                        : (size.width < 360 
-                            ? 0.68 
-                            : (size.width < 480 ? 0.75 : 0.85))),
-              ),
-              itemBuilder: (context, index) {
-                final project = filteredProjects[index];
-                // Find index of project in overall projects list to pass correct index to provider edit/delete
-                final globalIndex = projects.indexOf(project);
-
-                final widgetCard = ProjectCard(
-                  key: ValueKey('${project.title}_$_selectedCategory'),
-                  project: project,
-                ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms, curve: Curves.easeOut);
-
-                if (stateProvider.editMode) {
-                  return Stack(
-                    children: [
-                      widgetCard,
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: AppTheme.cardBg,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.edit_rounded, size: 14, color: AppTheme.primary),
-                                onPressed: () => showDialog<void>(
-                                  context: context,
-                                  builder: (context) => EditProjectDialog(
-                                    initialProject: project,
-                                    onSave: (p) => stateProvider.editProject(globalIndex, p),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: AppTheme.cardBg,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.delete_rounded, size: 14, color: Colors.redAccent),
-                                onPressed: () => stateProvider.deleteProject(globalIndex),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
-                return widgetCard;
-              },
-            ),
+            // Layout switcher: ListView for mobile, GridView for tablet/desktop
+            (!isDesktop && !isTablet)
+                ? ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredProjects.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 24),
+                    itemBuilder: (context, index) => _buildProjectItem(
+                      context: context,
+                      project: filteredProjects[index],
+                      projects: projects,
+                      globalIndex: projects.indexOf(filteredProjects[index]),
+                      stateProvider: stateProvider,
+                    ),
+                  )
+                : GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredProjects.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isDesktop ? 3 : 2,
+                      mainAxisSpacing: 28,
+                      crossAxisSpacing: 28,
+                      childAspectRatio: isDesktop ? 0.85 : 0.88,
+                    ),
+                    itemBuilder: (context, index) => _buildProjectItem(
+                      context: context,
+                      project: filteredProjects[index],
+                      projects: projects,
+                      globalIndex: projects.indexOf(filteredProjects[index]),
+                      stateProvider: stateProvider,
+                    ),
+                  ),
         ],
       ),
     );
+  }
+
+  Widget _buildProjectItem({
+    required BuildContext context,
+    required ProjectModel project,
+    required List<ProjectModel> projects,
+    required int globalIndex,
+    required PortfolioStateProvider stateProvider,
+  }) {
+    final widgetCard = ProjectCard(
+      key: ValueKey('${project.title}_$_selectedCategory'),
+      project: project,
+    ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.95, 0.95), duration: 300.ms, curve: Curves.easeOut);
+
+    if (stateProvider.editMode) {
+      return Stack(
+        children: [
+          widgetCard,
+          Positioned(
+            top: 12,
+            left: 12,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppTheme.cardBg,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.edit_rounded, size: 14, color: AppTheme.primary),
+                    onPressed: () => showDialog<void>(
+                      context: context,
+                      barrierDismissible: false, // Prevent accidental dismiss and data loss
+                      builder: (context) => EditProjectDialog(
+                        initialProject: project,
+                        onSave: (p) => stateProvider.editProject(globalIndex, p),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppTheme.cardBg,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.delete_rounded, size: 14, color: Colors.redAccent),
+                    onPressed: () async {
+                      final confirmed = await showConfirmDeleteDialog(
+                        context: context,
+                        title: 'Delete Project',
+                        content: 'Are you sure you want to delete "${project.title}"? This action cannot be undone.',
+                      );
+                      if (confirmed) {
+                        stateProvider.deleteProject(globalIndex);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return widgetCard;
   }
 
   Widget _buildHeader(BuildContext context, PortfolioStateProvider provider) {
@@ -156,6 +185,7 @@ class _ProjectsSectionState extends State<ProjectsSection> {
               EditSectionButton(
                 onTap: () => showDialog<void>(
                   context: context,
+                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                   builder: (context) => EditProjectDialog(
                     onSave: (p) => provider.addProject(p),
                   ),

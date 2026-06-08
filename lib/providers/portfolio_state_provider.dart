@@ -47,6 +47,11 @@ class PortfolioStateProvider extends ChangeNotifier {
         _isLockoutActive = false;
         await prefs.remove('failed_attempts');
         await prefs.remove('lockout_until');
+        
+        // Save session expiry (2 hours from now)
+        final expiry = DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch;
+        await prefs.setInt('admin_session_expiry', expiry);
+        
         notifyListeners();
         return true;
       } else {
@@ -80,10 +85,14 @@ class PortfolioStateProvider extends ChangeNotifier {
     }
   }
 
-  void logoutAdmin() {
+  void logoutAdmin() async {
     _isAdminAuthenticated = false;
     _editMode = false;
     notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('admin_session_expiry');
+    } catch (_) {}
   }
 
   bool get _isFirebaseEnabled {
@@ -128,6 +137,19 @@ class PortfolioStateProvider extends ChangeNotifier {
         _lockoutUntil = DateTime.fromMillisecondsSinceEpoch(lockoutMillis);
       }
       checkLockout();
+
+      // Load session expiry to restore authentication state
+      final sessionExpiryMillis = prefs.getInt('admin_session_expiry');
+      if (sessionExpiryMillis != null) {
+        final expiry = DateTime.fromMillisecondsSinceEpoch(sessionExpiryMillis);
+        if (DateTime.now().isBefore(expiry)) {
+          _isAdminAuthenticated = true;
+          // Extend session by 2 hours
+          await prefs.setInt('admin_session_expiry', DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch);
+        } else {
+          await prefs.remove('admin_session_expiry');
+        }
+      }
     } catch (_) {}
 
     bool loaded = false;

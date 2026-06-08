@@ -145,11 +145,22 @@
         }
       }
 
-      // 1. Capture WebGL context lost events in the capturing phase
-      window.addEventListener('webglcontextlost', function(event) {
-        event.preventDefault();
-        safeReload('webglcontextlost event');
-      }, true);
+      // 1. Intercept WebGL context creation and bind the non-bubbling webglcontextlost event
+      try {
+        const originalGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function(type, attributes) {
+          const context = originalGetContext.call(this, type, attributes);
+          if ((type === 'webgl' || type === 'webgl2') && context) {
+            this.addEventListener('webglcontextlost', function(event) {
+              event.preventDefault();
+              safeReload('webglcontextlost event on canvas');
+            }, false);
+          }
+          return context;
+        };
+      } catch (e) {
+        console.error('Failed to patch HTMLCanvasElement getContext:', e);
+      }
 
       // 2. Watch visibility changes to detect context loss on resume
       document.addEventListener('visibilitychange', function() {
@@ -157,11 +168,13 @@
           var canvases = document.getElementsByTagName('canvas');
           for (var i = 0; i < canvases.length; i++) {
             var canvas = canvases[i];
-            var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-            if (!gl || (gl.isContextLost && gl.isContextLost())) {
-              safeReload('context lost checked on visibility change');
-              break;
-            }
+            try {
+              var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+              if (gl && gl.isContextLost && gl.isContextLost()) {
+                safeReload('context lost checked on visibility change');
+                break;
+              }
+            } catch (_) {}
           }
         }
       });
@@ -178,6 +191,19 @@
           safeReload('unhandled graphics runtime error: ' + msg);
         }
       }, true);
+
+      // 4. Catch unhandled promise rejections related to graphics
+      window.addEventListener('unhandledrejection', function(event) {
+        var msg = (event.reason && event.reason.message) || (event.reason && event.reason.toString()) || '';
+        if (typeof msg === 'string' && (
+            msg.indexOf('WebGL') !== -1 || 
+            msg.indexOf('context lost') !== -1 || 
+            msg.indexOf('CanvasKit') !== -1 || 
+            msg.indexOf('skia') !== -1
+        )) {
+          safeReload('unhandled graphics promise rejection: ' + msg);
+        }
+      });
     })();
   </script>
 </head>

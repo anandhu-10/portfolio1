@@ -108,6 +108,7 @@ class HeroSection extends StatelessWidget {
               EditSectionButton(
                 onTap: () => showDialog<void>(
                   context: context,
+                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                   builder: (context) => EditProfileDialog(
                     initialProfile: profile,
                     onSave: (p) => provider.updateProfile(p),

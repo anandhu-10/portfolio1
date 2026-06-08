@@ -5,6 +5,7 @@ import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/certification_card.dart';
+import '../utils/confirm_dialog.dart';
 
 class CertificationsSection extends StatelessWidget {
   const CertificationsSection({super.key});
@@ -72,6 +73,7 @@ class CertificationsSection extends StatelessWidget {
                                     icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
                                     onPressed: () => showDialog<void>(
                                       context: context,
+                                      barrierDismissible: false, // Prevent accidental dismiss and data loss
                                       builder: (context) => EditCertificationDialog(
                                         initialCert: cert,
                                         onSave: (c) => stateProvider.editCertification(j, c),
@@ -86,7 +88,16 @@ class CertificationsSection extends StatelessWidget {
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
-                                    onPressed: () => stateProvider.deleteCertification(j),
+                                    onPressed: () async {
+                                      final confirmed = await showConfirmDeleteDialog(
+                                        context: context,
+                                        title: 'Delete Certificate',
+                                        content: 'Are you sure you want to delete the certificate "${cert.title}"? This action cannot be undone.',
+                                      );
+                                      if (confirmed) {
+                                        stateProvider.deleteCertification(j);
+                                      }
+                                    },
                                   ),
                                 ),
                               ],
@@ -167,6 +178,7 @@ class CertificationsSection extends StatelessWidget {
               EditSectionButton(
                 onTap: () => showDialog<void>(
                   context: context,
+                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                   builder: (context) => EditCertificationDialog(
                     onSave: (c) => provider.addCertification(c),
                   ),

@@ -5,6 +5,7 @@ import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/admin/edit_dialogs.dart';
 import '../widgets/timeline_item.dart';
+import '../utils/confirm_dialog.dart';
 
 class ExperienceSection extends StatelessWidget {
   const ExperienceSection({super.key});
@@ -74,6 +75,7 @@ class ExperienceSection extends StatelessWidget {
                                 icon: const Icon(Icons.edit_rounded, size: 12, color: AppTheme.primary),
                                 onPressed: () => showDialog<void>(
                                   context: context,
+                                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                                   builder: (context) => EditExperienceDialog(
                                     initialExperience: data,
                                     onSave: (e) => stateProvider.editExperience(index, e),
@@ -88,7 +90,16 @@ class ExperienceSection extends StatelessWidget {
                               child: IconButton(
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.delete_rounded, size: 12, color: Colors.redAccent),
-                                onPressed: () => stateProvider.deleteExperience(index),
+                                onPressed: () async {
+                                  final confirmed = await showConfirmDeleteDialog(
+                                    context: context,
+                                    title: 'Delete Experience',
+                                    content: 'Are you sure you want to delete the experience item "${data.title}"? This action cannot be undone.',
+                                  );
+                                  if (confirmed) {
+                                    stateProvider.deleteExperience(index);
+                                  }
+                                },
                               ),
                             ),
                           ],
@@ -127,6 +138,7 @@ class ExperienceSection extends StatelessWidget {
               EditSectionButton(
                 onTap: () => showDialog<void>(
                   context: context,
+                  barrierDismissible: false, // Prevent accidental dismiss and data loss
                   builder: (context) => EditExperienceDialog(
                     onSave: (e) => provider.addExperience(e),
                   ),

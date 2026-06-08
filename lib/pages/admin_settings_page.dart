@@ -166,6 +166,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   void _confirmReset(BuildContext context, PortfolioStateProvider provider) {
     showDialog<void>(
       context: context,
+      barrierDismissible: false, // Prevent accidental dismiss
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppTheme.cardBg,

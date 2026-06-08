@@ -78,4 +78,19 @@ void main() {
     expect(successLocked, isFalse);
     expect(provider.isAdminAuthenticated, isFalse);
   });
+
+  test('PortfolioStateProvider session persistence on init', () async {
+    // Mock active session expiry (2 hours from now)
+    final activeExpiry = DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch;
+    SharedPreferences.setMockInitialValues({
+      'admin_session_expiry': activeExpiry,
+    });
+
+    final provider = PortfolioStateProvider();
+    
+    // Allow async _initData to execute
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    
+    expect(provider.isAdminAuthenticated, isTrue);
+  });
 }
