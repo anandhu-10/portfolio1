@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models/portfolio_state_model.dart';
 import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
@@ -10,17 +9,14 @@ import '../utils/responsive_layout.dart';
 import '../utils/scroll_controller_provider.dart';
 import '../widgets/admin/edit_dialogs.dart';
 
+import '../utils/platform_helper.dart';
+
 class HeroSection extends StatelessWidget {
   const HeroSection({super.key});
 
-  Future<void> _downloadResume(String resumeUrl) async {
+  void _downloadResume(String resumeUrl) {
     if (resumeUrl.isEmpty) return;
-    final Uri uri = Uri.parse(resumeUrl);
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      debugPrint('Could not download resume: $e');
-    }
+    launchInNewTab(resumeUrl);
   }
 
   @override

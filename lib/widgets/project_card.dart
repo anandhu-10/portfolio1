@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models/portfolio_state_model.dart';
 import '../theme/app_theme.dart';
 import 'glass_container.dart';
+
+import '../utils/platform_helper.dart';
 
 class ProjectCard extends StatefulWidget {
   final ProjectModel project;
@@ -20,14 +21,9 @@ class ProjectCard extends StatefulWidget {
 class _ProjectCardState extends State<ProjectCard> {
   bool _isHovered = false;
 
-  Future<void> _launchUrl(String url) async {
+  void _launchUrl(String url) {
     if (url.isEmpty) return;
-    final Uri uri = Uri.parse(url);
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      debugPrint('Could not launch $url: $e');
-    }
+    launchInNewTab(url);
   }
 
   @override

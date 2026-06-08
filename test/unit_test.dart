@@ -4,6 +4,7 @@ import 'package:portfolio/models/portfolio_state_model.dart';
 import 'package:portfolio/providers/portfolio_state_provider.dart';
 import 'package:portfolio/widgets/admin/edit_dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:portfolio/utils/platform_helper.dart';
 
 void main() {
   testWidgets('test EditSkillDialog build', (WidgetTester tester) async {
@@ -92,5 +93,15 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 100));
     
     expect(provider.isAdminAuthenticated, isTrue);
+  });
+
+  test('sanitizeUrl utility tests', () {
+    expect(sanitizeUrl('www.linkedin.com/in/anandhuanil10'), 'https://www.linkedin.com/in/anandhuanil10');
+    expect(sanitizeUrl('https://linkedin.com'), 'https://linkedin.com');
+    expect(sanitizeUrl('http://linkedin.com'), 'http://linkedin.com');
+    expect(sanitizeUrl('  github.com/AnandhuAnil  '), 'https://github.com/AnandhuAnil');
+    expect(sanitizeUrl('mailto:test@gmail.com'), 'mailto:test@gmail.com');
+    expect(sanitizeUrl('tel:+911234567890'), 'tel:+911234567890');
+    expect(sanitizeUrl(''), '');
   });
 }

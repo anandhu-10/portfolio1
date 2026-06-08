@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../data/portfolio_data.dart';
+import '../providers/portfolio_state_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/scroll_controller_provider.dart';
 import '../utils/platform_helper.dart';
@@ -9,19 +9,11 @@ import '../utils/platform_helper.dart';
 class FooterSection extends StatelessWidget {
   const FooterSection({super.key});
 
-  Future<void> _launchUrl(String url) async {
-    if (url.isEmpty) return;
-    final Uri uri = Uri.parse(url);
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      debugPrint('Could not launch $url: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final scrollProvider = Provider.of<ScrollControllerProvider>(context, listen: false);
+    final stateProvider = Provider.of<PortfolioStateProvider>(context);
+    final contact = stateProvider.state.contact;
 
     return Container(
       width: double.infinity,
@@ -107,11 +99,18 @@ class FooterSection extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildFooterSocial(Icons.link, PortfolioData.linkedinUrl),
-                    const SizedBox(width: 16),
-                    _buildFooterSocial(Icons.code, PortfolioData.githubUrl),
-                    const SizedBox(width: 16),
-                    _buildFooterSocial(Icons.camera_alt, PortfolioData.instagramUrl),
+                    if (contact.linkedinUrl.isNotEmpty) ...[
+                      _buildFooterSocial(Icons.link, contact.linkedinUrl),
+                      if (contact.githubUrl.isNotEmpty || contact.instagramUrl.isNotEmpty)
+                        const SizedBox(width: 16),
+                    ],
+                    if (contact.githubUrl.isNotEmpty) ...[
+                      _buildFooterSocial(Icons.code, contact.githubUrl),
+                      if (contact.instagramUrl.isNotEmpty)
+                        const SizedBox(width: 16),
+                    ],
+                    if (contact.instagramUrl.isNotEmpty)
+                      _buildFooterSocial(Icons.camera_alt, contact.instagramUrl),
                   ],
                 ),
               ];

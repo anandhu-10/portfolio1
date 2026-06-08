@@ -7,10 +7,23 @@ void reloadApp() {
 
 /// Native implementation of launchInNewTab.
 void launchInNewTab(String url) async {
-  final Uri uri = Uri.parse(url);
+  final Uri uri = Uri.parse(sanitizeUrl(url));
   try {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   } catch (_) {
     // ignore
   }
+}
+
+String sanitizeUrl(String url) {
+  final trimmed = url.trim();
+  if (trimmed.isEmpty) return trimmed;
+  final lower = trimmed.toLowerCase();
+  if (lower.startsWith('http://') ||
+      lower.startsWith('https://') ||
+      lower.startsWith('mailto:') ||
+      lower.startsWith('tel:')) {
+    return trimmed;
+  }
+  return 'https://$trimmed';
 }
