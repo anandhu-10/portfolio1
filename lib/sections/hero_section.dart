@@ -30,11 +30,17 @@ class HeroSection extends StatelessWidget {
 
     // Padding settings depending on viewport size
     final horizontalPadding = isDesktop ? size.width * 0.08 : (isTablet ? 48.0 : 24.0);
-    final verticalPadding = isDesktop ? 120.0 : (isTablet ? 90.0 : 60.0);
+    final double topPadding = isDesktop ? 120.0 : (isTablet ? 90.0 : 100.0); // 70px app bar + 30px breathing room
+    final double bottomPadding = isDesktop ? 120.0 : (isTablet ? 90.0 : 40.0);
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+      padding: EdgeInsets.only(
+        left: horizontalPadding,
+        right: horizontalPadding,
+        top: topPadding,
+        bottom: bottomPadding,
+      ),
       child: ResponsiveLayout(
         desktop: Row(
           children: [
@@ -59,7 +65,7 @@ class HeroSection extends StatelessWidget {
         mobile: Column(
           children: [
             _buildProfileVisual(context, profile),
-            const SizedBox(height: 36),
+            const SizedBox(height: 20),
             _buildTextContent(context, stateProvider, profile, scrollProvider, CrossAxisAlignment.center),
           ],
         ),
@@ -80,8 +86,10 @@ class HeroSection extends StatelessWidget {
       crossAxisAlignment: alignment,
       children: [
         // Glowing Hello Tag
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: WrapAlignment.center,
+          spacing: 8,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -90,13 +98,14 @@ class HeroSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3), width: 1),
               ),
-              child: const Text(
+              child: Text(
                 'Open to internships, freelance work, and collaboration',
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: ResponsiveLayout.isMobile(context) ? 11 : 13,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.primary,
-                  letterSpacing: 1.0,
+                  letterSpacing: 0.5,
                 ),
               ),
             ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, end: 0, duration: 400.ms),
@@ -113,16 +122,16 @@ class HeroSection extends StatelessWidget {
               ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         
         // Large Name Title
         RichText(
           textAlign: isCentered ? TextAlign.center : TextAlign.start,
           text: TextSpan(
             text: "Hi, I'm ",
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Outfit',
-              fontSize: 48,
+              fontSize: ResponsiveLayout.isMobile(context) ? 34 : 48,
               fontWeight: FontWeight.bold,
               color: Colors.white,
               height: 1.1,
@@ -137,7 +146,7 @@ class HeroSection extends StatelessWidget {
             ],
           ),
         ).animate().fadeIn(delay: 150.ms, duration: 500.ms).slideY(begin: 0.1, end: 0, duration: 500.ms),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         
         ShaderMask(
           blendMode: BlendMode.srcIn,
@@ -149,13 +158,13 @@ class HeroSection extends StatelessWidget {
             textAlign: isCentered ? TextAlign.center : TextAlign.start,
             style: TextStyle(
               fontFamily: 'Outfit',
-              fontSize: ResponsiveLayout.isMobile(context) ? 22 : 26,
+              fontSize: ResponsiveLayout.isMobile(context) ? 18 : 26,
               fontWeight: FontWeight.w600,
               height: 1.2,
             ),
           ),
         ).animate().fadeIn(delay: 300.ms, duration: 500.ms).slideY(begin: 0.1, end: 0, duration: 500.ms),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
         
         // Short Bio description
         SizedBox(
@@ -164,13 +173,13 @@ class HeroSection extends StatelessWidget {
             profile.tagline,
             textAlign: isCentered ? TextAlign.center : TextAlign.start,
             style: TextStyle(
-              fontSize: ResponsiveLayout.isMobile(context) ? 15 : 16,
+              fontSize: ResponsiveLayout.isMobile(context) ? 14 : 16,
               color: AppTheme.textSecondary,
-              height: 1.6,
+              height: 1.5,
             ),
           ),
         ).animate().fadeIn(delay: 450.ms, duration: 500.ms).slideY(begin: 0.1, end: 0, duration: 500.ms),
-        const SizedBox(height: 36),
+        const SizedBox(height: 24),
         
         // Buttons
         Wrap(
@@ -217,7 +226,7 @@ class HeroSection extends StatelessWidget {
   }
 
   Widget _buildProfileVisual(BuildContext context, ProfileModel profile) {
-    final size = ResponsiveLayout.isMobile(context) ? 220.0 : 320.0;
+    final size = ResponsiveLayout.isMobile(context) ? 180.0 : 320.0;
     
     return Center(
       child: Stack(
