@@ -418,6 +418,11 @@ class PortfolioStateProvider extends ChangeNotifier {
       return base64DataUrl;
     }
 
+    if (!_isFirebaseEnabled) {
+      print('[Firestore Write] Firebase not enabled. Skipping storage upload, using Base64 directly.');
+      return base64DataUrl;
+    }
+
     try {
       print('[Firestore Write] Uploading base64 payload to path: $storagePath...');
       
@@ -440,8 +445,8 @@ class PortfolioStateProvider extends ChangeNotifier {
       print('[Firestore Write] Upload success. Download URL: $downloadUrl');
       return downloadUrl;
     } catch (e) {
-      print('[Firestore Write] ERROR uploading to Firebase Storage: $e');
-      rethrow;
+      print('[Firestore Write] WARNING: Firebase Storage upload failed: $e. Using Base64 payload directly.');
+      return base64DataUrl;
     }
   }
 
