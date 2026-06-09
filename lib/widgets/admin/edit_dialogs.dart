@@ -57,6 +57,8 @@ Widget _buildBaseDialog({
   required String title,
   required Widget content,
   required VoidCallback onSave,
+  bool isLoading = false,
+  String? errorMessage,
 }) {
   return Dialog(
     backgroundColor: AppTheme.cardBg,
@@ -82,14 +84,41 @@ Widget _buildBaseDialog({
               ),
               IconButton(
                 icon: const Icon(Icons.close, color: AppTheme.textMuted),
-                onPressed: () => Navigator.pop(context),
+                onPressed: isLoading ? null : () => Navigator.pop(context),
               ),
             ],
           ),
           const Divider(color: AppTheme.border, height: 24),
+          if (errorMessage != null) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.redAccent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      errorMessage,
+                      style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           Flexible(
             child: SingleChildScrollView(
-              child: content,
+              child: IgnorePointer(
+                ignoring: isLoading,
+                child: content,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -97,18 +126,27 @@ Widget _buildBaseDialog({
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: isLoading ? null : () => Navigator.pop(context),
                 child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
               ),
               const SizedBox(width: 12),
               ElevatedButton(
-                onPressed: onSave,
+                onPressed: isLoading ? null : onSave,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
-                child: const Text('Save Changes'),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                        ),
+                      )
+                    : const Text('Save Changes'),
               ),
             ],
           ),
@@ -121,13 +159,13 @@ Widget _buildBaseDialog({
 // 1. Profile Dialog
 class EditProfileDialog extends StatefulWidget {
   final ProfileModel initialProfile;
-  final void Function(ProfileModel profile) onSave;
+  final Future<void> Function(ProfileModel profile) onSave;
 
   const EditProfileDialog({
-    super.key,
+    key,
     required this.initialProfile,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<EditProfileDialog> createState() => _EditProfileDialogState();
@@ -141,6 +179,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   late TextEditingController _taglineController;
   late TextEditingController _resumeUrlController;
   String _profilePhotoBase64 = '';
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -168,7 +208,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     return _buildBaseDialog(
       context: context,
       title: 'Edit Profile Information',
-      onSave: () {
+      isLoading: _isLoading,
+      errorMessage: _errorMessage,
+      onSave: () async {
         if (_formKey.currentState!.validate()) {
           final updated = ProfileModel(
             name: _nameController.text,
@@ -179,8 +221,31 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
             resumeUrl: _resumeUrlController.text,
             resumeBase64: widget.initialProfile.resumeBase64,
           );
-          widget.onSave(updated);
-          Navigator.pop(context);
+          
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          
+          try {
+            await widget.onSave(updated);
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Profile information updated successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to save profile: ${e.toString()}';
+              });
+            }
+          }
         }
       },
       content: Form(
@@ -233,13 +298,13 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 // 2. About Dialog
 class EditAboutDialog extends StatefulWidget {
   final AboutModel initialAbout;
-  final void Function(AboutModel about) onSave;
+  final Future<void> Function(AboutModel about) onSave;
 
   const EditAboutDialog({
-    super.key,
+    key,
     required this.initialAbout,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<EditAboutDialog> createState() => _EditAboutDialogState();
@@ -253,9 +318,9 @@ class _EditAboutDialogState extends State<EditAboutDialog> {
   late TextEditingController _orgController;
   late TextEditingController _durationController;
   late TextEditingController _goalsController;
-
-  // Local copy of statistics
   List<Map<String, String>> _stats = [];
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -299,7 +364,9 @@ class _EditAboutDialogState extends State<EditAboutDialog> {
     return _buildBaseDialog(
       context: context,
       title: 'Edit About & Education',
-      onSave: () {
+      isLoading: _isLoading,
+      errorMessage: _errorMessage,
+      onSave: () async {
         if (_formKey.currentState!.validate()) {
           final updated = AboutModel(
             aboutOne: _bioOneController.text,
@@ -310,8 +377,31 @@ class _EditAboutDialogState extends State<EditAboutDialog> {
             careerGoals: _goalsController.text,
             statistics: _stats,
           );
-          widget.onSave(updated);
-          Navigator.pop(context);
+          
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          
+          try {
+            await widget.onSave(updated);
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('About details updated successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to save about details: ${e.toString()}';
+              });
+            }
+          }
         }
       },
       content: Form(
@@ -423,13 +513,13 @@ class _EditAboutDialogState extends State<EditAboutDialog> {
 // 3. Skill Add/Edit Dialog
 class EditSkillDialog extends StatefulWidget {
   final SkillModel? initialSkill;
-  final void Function(SkillModel skill) onSave;
+  final Future<void> Function(SkillModel skill) onSave;
 
   const EditSkillDialog({
-    super.key,
+    key,
     this.initialSkill,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<EditSkillDialog> createState() => _EditSkillDialogState();
@@ -441,6 +531,8 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
   double _percentage = 1.0;
   late IconOption _selectedIcon;
   late ColorOption _selectedColor;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -448,13 +540,11 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
     _nameController = TextEditingController(text: widget.initialSkill?.name ?? '');
     _percentage = widget.initialSkill?.percentage ?? 1.0;
 
-    // Resolve matching icon option
     _selectedIcon = selectableIcons.firstWhere(
       (opt) => opt.icon.codePoint == widget.initialSkill?.iconCodePoint,
       orElse: () => selectableIcons.first,
     );
 
-    // Resolve matching color option
     _selectedColor = selectableColors.firstWhere(
       (opt) => opt.hex == widget.initialSkill?.colorHex,
       orElse: () => selectableColors.first,
@@ -472,7 +562,9 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
     return _buildBaseDialog(
       context: context,
       title: widget.initialSkill == null ? 'Add New Skill' : 'Edit Skill',
-      onSave: () {
+      isLoading: _isLoading,
+      errorMessage: _errorMessage,
+      onSave: () async {
         if (_formKey.currentState!.validate()) {
           final skill = SkillModel(
             name: _nameController.text,
@@ -481,8 +573,31 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
             iconFontFamily: _selectedIcon.icon.fontFamily ?? 'MaterialIcons',
             colorHex: _selectedColor.hex,
           );
-          widget.onSave(skill);
-          Navigator.pop(context);
+          
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          
+          try {
+            await widget.onSave(skill);
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Skill saved successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to save skill: ${e.toString()}';
+              });
+            }
+          }
         }
       },
       content: Form(
@@ -541,13 +656,13 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
 // 4. Project Add/Edit Dialog
 class EditProjectDialog extends StatefulWidget {
   final ProjectModel? initialProject;
-  final void Function(ProjectModel project) onSave;
+  final Future<void> Function(ProjectModel project) onSave;
 
   const EditProjectDialog({
-    super.key,
+    key,
     this.initialProject,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<EditProjectDialog> createState() => _EditProjectDialogState();
@@ -563,6 +678,8 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
   late TextEditingController _liveController;
   late String _category;
   String _imageBase64 = '';
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -595,7 +712,9 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
     return _buildBaseDialog(
       context: context,
       title: widget.initialProject == null ? 'Add New Project' : 'Edit Project',
-      onSave: () {
+      isLoading: _isLoading,
+      errorMessage: _errorMessage,
+      onSave: () async {
         if (_formKey.currentState!.validate()) {
           final techs = _techController.text
               .split(',')
@@ -612,8 +731,31 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
             liveUrl: _liveController.text,
             category: _category,
           );
-          widget.onSave(proj);
-          Navigator.pop(context);
+          
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          
+          try {
+            await widget.onSave(proj);
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Project saved successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to save project: ${e.toString()}';
+              });
+            }
+          }
         }
       },
       content: Form(
@@ -686,13 +828,13 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
 // 5. Certification Add/Edit Dialog
 class EditCertificationDialog extends StatefulWidget {
   final CertificationModel? initialCert;
-  final void Function(CertificationModel cert) onSave;
+  final Future<void> Function(CertificationModel cert) onSave;
 
   const EditCertificationDialog({
-    super.key,
+    key,
     this.initialCert,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<EditCertificationDialog> createState() => _EditCertificationDialogState();
@@ -706,6 +848,8 @@ class _EditCertificationDialogState extends State<EditCertificationDialog> {
   late TextEditingController _linkController;
   String _imageBase64 = '';
   String _pdfBase64 = '';
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -732,7 +876,9 @@ class _EditCertificationDialogState extends State<EditCertificationDialog> {
     return _buildBaseDialog(
       context: context,
       title: widget.initialCert == null ? 'Add New Certification' : 'Edit Certification',
-      onSave: () {
+      isLoading: _isLoading,
+      errorMessage: _errorMessage,
+      onSave: () async {
         if (_formKey.currentState!.validate()) {
           final cert = CertificationModel(
             title: _titleController.text,
@@ -743,8 +889,31 @@ class _EditCertificationDialogState extends State<EditCertificationDialog> {
             credentialUrl: _linkController.text,
             date: _dateController.text,
           );
-          widget.onSave(cert);
-          Navigator.pop(context);
+          
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          
+          try {
+            await widget.onSave(cert);
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Certification saved successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to save certification: ${e.toString()}';
+              });
+            }
+          }
         }
       },
       content: Form(
@@ -795,13 +964,13 @@ class _EditCertificationDialogState extends State<EditCertificationDialog> {
 // 6. Experience Add/Edit Dialog
 class EditExperienceDialog extends StatefulWidget {
   final ExperienceModel? initialExperience;
-  final void Function(ExperienceModel exp) onSave;
+  final Future<void> Function(ExperienceModel exp) onSave;
 
   const EditExperienceDialog({
-    super.key,
+    key,
     this.initialExperience,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<EditExperienceDialog> createState() => _EditExperienceDialogState();
@@ -814,6 +983,8 @@ class _EditExperienceDialogState extends State<EditExperienceDialog> {
   late TextEditingController _durationController;
   late TextEditingController _descController;
   late IconOption _selectedIcon;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -843,7 +1014,9 @@ class _EditExperienceDialogState extends State<EditExperienceDialog> {
     return _buildBaseDialog(
       context: context,
       title: widget.initialExperience == null ? 'Add New Experience' : 'Edit Experience',
-      onSave: () {
+      isLoading: _isLoading,
+      errorMessage: _errorMessage,
+      onSave: () async {
         if (_formKey.currentState!.validate()) {
           final exp = ExperienceModel(
             title: _titleController.text,
@@ -853,8 +1026,31 @@ class _EditExperienceDialogState extends State<EditExperienceDialog> {
             iconCodePoint: _selectedIcon.icon.codePoint,
             iconFontFamily: _selectedIcon.icon.fontFamily ?? 'MaterialIcons',
           );
-          widget.onSave(exp);
-          Navigator.pop(context);
+          
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          
+          try {
+            await widget.onSave(exp);
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Experience saved successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to save experience: ${e.toString()}';
+              });
+            }
+          }
         }
       },
       content: Form(
@@ -913,13 +1109,13 @@ class _EditExperienceDialogState extends State<EditExperienceDialog> {
 // 7. Contact Dialog
 class EditContactDialog extends StatefulWidget {
   final ContactModel initialContact;
-  final void Function(ContactModel contact) onSave;
+  final Future<void> Function(ContactModel contact) onSave;
 
   const EditContactDialog({
-    super.key,
+    key,
     required this.initialContact,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<EditContactDialog> createState() => _EditContactDialogState();
@@ -933,6 +1129,8 @@ class _EditContactDialogState extends State<EditContactDialog> {
   late TextEditingController _linkedinController;
   late TextEditingController _githubController;
   late TextEditingController _instagramController;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -961,7 +1159,9 @@ class _EditContactDialogState extends State<EditContactDialog> {
     return _buildBaseDialog(
       context: context,
       title: 'Edit Contact Details',
-      onSave: () {
+      isLoading: _isLoading,
+      errorMessage: _errorMessage,
+      onSave: () async {
         if (_formKey.currentState!.validate()) {
           final updated = ContactModel(
             phone: _phoneController.text,
@@ -971,8 +1171,31 @@ class _EditContactDialogState extends State<EditContactDialog> {
             githubUrl: _githubController.text,
             instagramUrl: _instagramController.text,
           );
-          widget.onSave(updated);
-          Navigator.pop(context);
+          
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          
+          try {
+            await widget.onSave(updated);
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Contact details updated successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to save contact details: ${e.toString()}';
+              });
+            }
+          }
         }
       },
       content: Form(

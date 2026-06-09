@@ -94,8 +94,32 @@ class CertificationsSection extends StatelessWidget {
                                         title: 'Delete Certificate',
                                         content: 'Are you sure you want to delete the certificate "${cert.title}"? This action cannot be undone.',
                                       );
-                                      if (confirmed) {
-                                        stateProvider.deleteCertification(j);
+                                      if (confirmed && context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Deleting certificate from Firestore...')),
+                                        );
+                                        try {
+                                          await stateProvider.deleteCertification(j);
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Certificate deleted successfully!'),
+                                                backgroundColor: Colors.green,
+                                              ),
+                                            );
+                                          }
+                                        } catch (e) {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Failed to delete certificate: ${e.toString()}'),
+                                                backgroundColor: Colors.redAccent,
+                                              ),
+                                            );
+                                          }
+                                        }
                                       }
                                     },
                                   ),

@@ -328,12 +328,23 @@ class HeroSection extends StatelessWidget {
                   ),
                   
                   if (profile.profilePhotoBase64.isNotEmpty)
-                    Image.memory(
-                      base64Decode(profile.profilePhotoBase64.split(',').last),
-                      width: size,
-                      height: size,
-                      fit: BoxFit.cover,
-                    )
+                    profile.profilePhotoBase64.startsWith('http')
+                        ? Image.network(
+                            profile.profilePhotoBase64,
+                            width: size,
+                            height: size,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                          )
+                        : Image.memory(
+                            base64Decode(profile.profilePhotoBase64.split(',').last),
+                            width: size,
+                            height: size,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                          )
                   else
                     // Central Developer Avatar Placeholder Icon
                     Column(

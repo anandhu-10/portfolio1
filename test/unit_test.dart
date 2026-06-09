@@ -21,7 +21,7 @@ void main() {
         home: Scaffold(
           body: EditSkillDialog(
             initialSkill: skill,
-            onSave: (_) {},
+            onSave: (_) async {},
           ),
         ),
       ),

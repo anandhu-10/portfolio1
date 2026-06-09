@@ -70,10 +70,19 @@ class _ProjectCardState extends State<ProjectCard> {
                         Positioned.fill(
                           child: ClipRRect(
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Image.memory(
-                              base64Decode(widget.project.imageBase64.split(',').last),
-                              fit: BoxFit.cover,
-                            ),
+                            child: widget.project.imageBase64.startsWith('http')
+                                ? Image.network(
+                                    widget.project.imageBase64,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                                  )
+                                : Image.memory(
+                                    base64Decode(widget.project.imageBase64.split(',').last),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                                  ),
                           ),
                         )
                       else
@@ -281,10 +290,19 @@ class _ProjectCardState extends State<ProjectCard> {
                         Positioned.fill(
                           child: ClipRRect(
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Image.memory(
-                              base64Decode(widget.project.imageBase64.split(',').last),
-                              fit: BoxFit.cover,
-                            ),
+                            child: widget.project.imageBase64.startsWith('http')
+                                ? Image.network(
+                                    widget.project.imageBase64,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                                  )
+                                : Image.memory(
+                                    base64Decode(widget.project.imageBase64.split(',').last),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                                  ),
                           ),
                         )
                       else

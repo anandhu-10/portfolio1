@@ -181,15 +181,34 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
               child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
             ),
             ElevatedButton(
-              onPressed: () {
-                provider.resetToDefaults();
-                Navigator.pop(context);
+              onPressed: () async {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Portfolio reset to default configuration.'),
-                    backgroundColor: AppTheme.secondary,
-                  ),
+                  const SnackBar(content: Text('Resetting portfolio...')),
                 );
+                try {
+                  await provider.resetToDefaults();
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Portfolio reset to default configuration.'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to reset portfolio: ${e.toString()}'),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  }
+                }
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
               child: const Text('Reset', style: TextStyle(color: Colors.white)),

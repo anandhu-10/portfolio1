@@ -106,8 +106,32 @@ class SkillsSection extends StatelessWidget {
                                     title: 'Delete Skill',
                                     content: 'Are you sure you want to delete the skill "${skill.name}"? This action cannot be undone.',
                                   );
-                                  if (confirmed) {
-                                    stateProvider.deleteSkill(index);
+                                  if (confirmed && context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Deleting skill from Firestore...')),
+                                    );
+                                    try {
+                                      await stateProvider.deleteSkill(index);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Skill deleted successfully!'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Failed to delete skill: ${e.toString()}'),
+                                            backgroundColor: Colors.redAccent,
+                                          ),
+                                        );
+                                      }
+                                    }
                                   }
                                 },
                               ),

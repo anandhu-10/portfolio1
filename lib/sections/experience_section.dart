@@ -96,8 +96,32 @@ class ExperienceSection extends StatelessWidget {
                                     title: 'Delete Experience',
                                     content: 'Are you sure you want to delete the experience item "${data.title}"? This action cannot be undone.',
                                   );
-                                  if (confirmed) {
-                                    stateProvider.deleteExperience(index);
+                                  if (confirmed && context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Deleting experience from Firestore...')),
+                                    );
+                                    try {
+                                      await stateProvider.deleteExperience(index);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Experience deleted successfully!'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Failed to delete experience: ${e.toString()}'),
+                                            backgroundColor: Colors.redAccent,
+                                          ),
+                                        );
+                                      }
+                                    }
                                   }
                                 },
                               ),

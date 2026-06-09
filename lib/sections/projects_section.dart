@@ -148,8 +148,32 @@ class _ProjectsSectionState extends State<ProjectsSection> {
                         title: 'Delete Project',
                         content: 'Are you sure you want to delete "${project.title}"? This action cannot be undone.',
                       );
-                      if (confirmed) {
-                        stateProvider.deleteProject(globalIndex);
+                      if (confirmed && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Deleting project from Firestore...')),
+                        );
+                        try {
+                          await stateProvider.deleteProject(globalIndex);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Project deleted successfully!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to delete project: ${e.toString()}'),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                          }
+                        }
                       }
                     },
                   ),

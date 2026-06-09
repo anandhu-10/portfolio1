@@ -54,10 +54,19 @@ class _CertificationCardState extends State<CertificationCard> {
                             ),
                           ],
                         ),
-                        child: Image.memory(
-                          base64Decode(widget.certification.imageBase64.split(',').last),
-                          fit: BoxFit.contain,
-                        ),
+                        child: widget.certification.imageBase64.startsWith('http')
+                            ? Image.network(
+                                widget.certification.imageBase64,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                              )
+                            : Image.memory(
+                                base64Decode(widget.certification.imageBase64.split(',').last),
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.broken_image, color: Colors.redAccent, size: 48),
+                              ),
                       ),
                     ),
                   ),
