@@ -30,10 +30,12 @@ dependencies:
   # File picking for images and PDFs
   file_picker: ^8.0.0
 
+  # Http for Cloudinary uploads
+  http: ^1.2.1
+
   # Firebase Core and Firestore
   firebase_core: ^3.1.1
   cloud_firestore: ^5.0.1
-  firebase_storage: ^12.4.10
 
 dev_dependencies:
   flutter_test:

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import '../services/cloudinary_service.dart';
 
 import '../data/portfolio_data.dart';
 import '../models/portfolio_state_model.dart';
@@ -18,7 +18,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   int _failedAttempts = 0;
   DateTime? _lockoutUntil;
   bool _isLockoutActive = false;
-  bool _firebaseStorageAvailable = true;
+  bool _cloudinaryAvailable = true;
 
   PortfolioStateModel get state => _state;
   bool get isLoading => _isLoading;
@@ -27,7 +27,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   int get failedAttempts => _failedAttempts;
   DateTime? get lockoutUntil => _lockoutUntil;
   bool get isLockoutActive => _isLockoutActive;
-  bool get firebaseStorageAvailable => _firebaseStorageAvailable;
+  bool get cloudinaryAvailable => _cloudinaryAvailable;
 
   void checkLockout() {
     if (_lockoutUntil != null && DateTime.now().isBefore(_lockoutUntil!)) {
@@ -59,7 +59,7 @@ class PortfolioStateProvider extends ChangeNotifier {
         notifyListeners();
         
         // Trigger automated Base64 cleanup and migration
-        migrateBase64ToStorage();
+        migrateBase64ToCloudinary();
         
         return true;
       } else {
@@ -81,7 +81,7 @@ class PortfolioStateProvider extends ChangeNotifier {
         _isLockoutActive = false;
         notifyListeners();
         
-        migrateBase64ToStorage();
+        migrateBase64ToCloudinary();
         
         return true;
       } else {
@@ -197,7 +197,7 @@ class PortfolioStateProvider extends ChangeNotifier {
 
     // Now trigger migration if the admin session was restored
     if (_isAdminAuthenticated) {
-      migrateBase64ToStorage();
+      migrateBase64ToCloudinary();
     }
 
     // Now, listen to Firebase Firestore in real-time. Any changes will auto-update the UI on all devices.
@@ -418,65 +418,33 @@ class PortfolioStateProvider extends ChangeNotifier {
     }
   }
 
-  Future<String> uploadBase64ToStorage(String base64DataUrl, String storagePath) async {
+  Future<String> uploadBase64ToCloudinary(String base64DataUrl, String fileName) async {
     if (base64DataUrl.isEmpty) return '';
     if (base64DataUrl.startsWith('http://') || base64DataUrl.startsWith('https://')) {
       return base64DataUrl;
     }
 
-    if (!_isFirebaseEnabled || !_firebaseStorageAvailable) {
-      print('[Firestore Write] Firebase not enabled or Storage unavailable. Skipping storage upload, using Base64 directly.');
+    if (!_cloudinaryAvailable) {
+      print('[Cloudinary Write] Cloudinary unavailable. Skipping upload, using Base64 directly.');
       return base64DataUrl;
     }
 
     try {
-      print('[Firestore Write] Uploading base64 payload to path: $storagePath...');
-      
-      final parts = base64DataUrl.split(';');
-      String mimeType = 'application/octet-stream';
-      if (parts.isNotEmpty && parts[0].startsWith('data:')) {
-        mimeType = parts[0].substring(5);
-      }
-      
-      final base64String = base64DataUrl.split(',').last;
-      final Uint8List bytes = base64Decode(base64String);
-      
-      final metadata = SettableMetadata(contentType: mimeType);
-      final ref = FirebaseStorage.instance.ref().child(storagePath);
-      
-      final uploadTask = ref.putData(bytes, metadata);
-      
-      // Attach a catchError handler to the future immediately to prevent uncaught exceptions
-      final safeFuture = uploadTask.catchError((Object e) {
-        print('[Firestore Write] Future error caught: $e');
-        throw e;
-      });
-
-      // Subscribe to snapshotEvents to handle stream-level errors and prevent uncaught web zone exceptions
-      uploadTask.snapshotEvents.listen(
-        (snapshot) {},
-        onError: (Object e) {
-          print('[Firestore Write] Stream error caught: $e');
-        },
-        cancelOnError: true,
-      );
-
-      final snapshot = await safeFuture;
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-      
-      print('[Firestore Write] Upload success. Download URL: $downloadUrl');
+      print('[Cloudinary Write] Uploading base64 payload for: $fileName...');
+      final downloadUrl = await CloudinaryService.uploadBase64(base64DataUrl, fileName);
+      print('[Cloudinary Write] Upload success. URL: $downloadUrl');
       return downloadUrl;
     } catch (e) {
-      print('[Firestore Write] WARNING: Firebase Storage upload failed: $e. Falling back to Base64 payload directly.');
-      _firebaseStorageAvailable = false;
+      print('[Cloudinary Write] WARNING: Cloudinary upload failed: $e. Falling back to Base64 payload directly.');
+      _cloudinaryAvailable = false;
       notifyListeners();
       return base64DataUrl;
     }
   }
 
-  Future<void> migrateBase64ToStorage() async {
+  Future<void> migrateBase64ToCloudinary() async {
     if (!_isAdminAuthenticated) return;
-    print('[Migration] Checking if any Base64 content needs to be migrated to Firebase Storage...');
+    print('[Migration] Checking if any Base64 content needs to be migrated to Cloudinary...');
     
     bool needsMigration = false;
     if (_state.profile.profilePhotoBase64.startsWith('data:')) needsMigration = true;
@@ -501,22 +469,22 @@ class PortfolioStateProvider extends ChangeNotifier {
       return;
     }
     
-    print('[Migration] Base64 data found! Starting migration to Firebase Storage...');
+    print('[Migration] Base64 data found! Starting migration to Cloudinary...');
     
     try {
       String profilePhotoUrl = _state.profile.profilePhotoBase64;
       if (profilePhotoUrl.startsWith('data:')) {
-        profilePhotoUrl = await uploadBase64ToStorage(
+        profilePhotoUrl = await uploadBase64ToCloudinary(
           profilePhotoUrl,
-          'profile/profile_photo_migrated.png',
+          'profile_photo_migrated.png',
         );
       }
       
       String resumeUrl = _state.profile.resumeBase64;
       if (resumeUrl.startsWith('data:')) {
-        resumeUrl = await uploadBase64ToStorage(
+        resumeUrl = await uploadBase64ToCloudinary(
           resumeUrl,
-          'profile/resume_migrated.pdf',
+          'resume_migrated.pdf',
         );
       }
       
@@ -531,9 +499,9 @@ class PortfolioStateProvider extends ChangeNotifier {
         String imageUrl = proj.imageBase64;
         if (imageUrl.startsWith('data:')) {
           final sanitizedTitle = proj.title.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_').toLowerCase();
-          imageUrl = await uploadBase64ToStorage(
+          imageUrl = await uploadBase64ToCloudinary(
             imageUrl,
-            'projects/${sanitizedTitle}_image_migrated.png',
+            '${sanitizedTitle}_image_migrated.png',
           );
         }
         migratedProjects.add(ProjectModel(
@@ -554,17 +522,17 @@ class PortfolioStateProvider extends ChangeNotifier {
         
         String imageUrl = cert.imageBase64;
         if (imageUrl.startsWith('data:')) {
-          imageUrl = await uploadBase64ToStorage(
+          imageUrl = await uploadBase64ToCloudinary(
             imageUrl,
-            'certifications/${sanitizedTitle}_image_migrated.png',
+            '${sanitizedTitle}_image_migrated.png',
           );
         }
         
         String pdfUrl = cert.pdfBase64;
         if (pdfUrl.startsWith('data:')) {
-          pdfUrl = await uploadBase64ToStorage(
+          pdfUrl = await uploadBase64ToCloudinary(
             pdfUrl,
-            'certifications/${sanitizedTitle}_doc_migrated.pdf',
+            '${sanitizedTitle}_doc_migrated.pdf',
           );
         }
         
@@ -585,7 +553,7 @@ class PortfolioStateProvider extends ChangeNotifier {
         certifications: migratedCerts,
       );
       
-      print('[Migration] All files uploaded to Storage. Updating state...');
+      print('[Migration] All files uploaded to Cloudinary. Updating state...');
       await _saveState(migratedState);
       print('[Migration] Database migration completed successfully!');
     } catch (e) {
@@ -625,17 +593,17 @@ class PortfolioStateProvider extends ChangeNotifier {
     
     String profilePhotoUrl = newProfile.profilePhotoBase64;
     if (profilePhotoUrl.startsWith('data:')) {
-      profilePhotoUrl = await uploadBase64ToStorage(
+      profilePhotoUrl = await uploadBase64ToCloudinary(
         profilePhotoUrl,
-        'profile/profile_photo_${DateTime.now().millisecondsSinceEpoch}.png',
+        'profile_photo_${DateTime.now().millisecondsSinceEpoch}.png',
       );
     }
     
     String resumeUrl = newProfile.resumeBase64;
     if (resumeUrl.startsWith('data:')) {
-      resumeUrl = await uploadBase64ToStorage(
+      resumeUrl = await uploadBase64ToCloudinary(
         resumeUrl,
-        'profile/resume_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        'resume_${DateTime.now().millisecondsSinceEpoch}.pdf',
       );
     }
     
@@ -708,9 +676,9 @@ class PortfolioStateProvider extends ChangeNotifier {
     String imageUrl = project.imageBase64;
     if (imageUrl.startsWith('data:')) {
       final sanitizedTitle = project.title.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_').toLowerCase();
-      imageUrl = await uploadBase64ToStorage(
+      imageUrl = await uploadBase64ToCloudinary(
         imageUrl,
-        'projects/${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
+        '${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
       );
     }
     
@@ -738,9 +706,9 @@ class PortfolioStateProvider extends ChangeNotifier {
       String imageUrl = project.imageBase64;
       if (imageUrl.startsWith('data:')) {
         final sanitizedTitle = project.title.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_').toLowerCase();
-        imageUrl = await uploadBase64ToStorage(
+        imageUrl = await uploadBase64ToCloudinary(
           imageUrl,
-          'projects/${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
+          '${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
         );
       }
       
@@ -787,17 +755,17 @@ class PortfolioStateProvider extends ChangeNotifier {
     
     String imageUrl = cert.imageBase64;
     if (imageUrl.startsWith('data:')) {
-      imageUrl = await uploadBase64ToStorage(
+      imageUrl = await uploadBase64ToCloudinary(
         imageUrl,
-        'certifications/${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
+        '${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
       );
     }
     
     String pdfUrl = cert.pdfBase64;
     if (pdfUrl.startsWith('data:')) {
-      pdfUrl = await uploadBase64ToStorage(
+      pdfUrl = await uploadBase64ToCloudinary(
         pdfUrl,
-        'certifications/${sanitizedTitle}_doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        '${sanitizedTitle}_doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
       );
     }
     
@@ -825,17 +793,17 @@ class PortfolioStateProvider extends ChangeNotifier {
       
       String imageUrl = cert.imageBase64;
       if (imageUrl.startsWith('data:')) {
-        imageUrl = await uploadBase64ToStorage(
+        imageUrl = await uploadBase64ToCloudinary(
           imageUrl,
-          'certifications/${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
+          '${sanitizedTitle}_image_${DateTime.now().millisecondsSinceEpoch}.png',
         );
       }
       
       String pdfUrl = cert.pdfBase64;
       if (pdfUrl.startsWith('data:')) {
-        pdfUrl = await uploadBase64ToStorage(
+        pdfUrl = await uploadBase64ToCloudinary(
           pdfUrl,
-          'certifications/${sanitizedTitle}_doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
+          '${sanitizedTitle}_doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
         );
       }
       
