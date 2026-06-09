@@ -44,8 +44,8 @@ class CloudinaryService {
           throw Exception('Cloudinary returned an empty response.');
         }
         try {
-          final Map<String, dynamic> data = jsonDecode(response.body);
-          final String? secureUrl = data['secure_url'];
+          final data = jsonDecode(response.body) as Map<String, dynamic>;
+          final secureUrl = data['secure_url'] as String?;
           if (secureUrl != null && secureUrl.isNotEmpty) {
             debugPrint('[Cloudinary] Successfully uploaded $fileName -> $secureUrl');
             return secureUrl;
@@ -59,8 +59,9 @@ class CloudinaryService {
         String errorMessage = 'Unknown error';
         if (response.body.isNotEmpty) {
           try {
-            final Map<String, dynamic> errorData = jsonDecode(response.body);
-            errorMessage = errorData['error']?['message'] ?? response.body;
+            final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+            final errorMap = errorData['error'] as Map<dynamic, dynamic>?;
+            errorMessage = (errorMap?['message'] ?? response.body).toString();
           } catch (_) {
             errorMessage = response.body;
           }
