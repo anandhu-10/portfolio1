@@ -126,6 +126,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   Future<void> _initData() async {
+    print('[_initData] Startup initialized. Loading state...');
     _isLoading = true;
     notifyListeners();
 
@@ -150,84 +151,101 @@ class PortfolioStateProvider extends ChangeNotifier {
           await prefs.remove('admin_session_expiry');
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      print('[_initData] Failed to load settings/lockout from SharedPreferences: $e');
+    }
 
-    bool loaded = false;
-    bool loadedFromFirestore = false;
+    // Load defaults immediately to prevent black screen / empty UI
+    print('[_initData] Loading hardcoded defaults first...');
+    _loadDefaults();
 
-    // 1. Try loading from Firebase Firestore
-    if (_isFirebaseEnabled) {
-      try {
-        final doc = await FirebaseFirestore.instance
-            .collection('portfolios')
-            .doc('main_portfolio')
-            .get()
-            .timeout(const Duration(seconds: 4));
-        if (doc.exists && doc.data() != null) {
-          _state = PortfolioStateModel.fromJson(doc.data()!);
-          loaded = true;
-          loadedFromFirestore = true;
-        }
-      } catch (e) {
-        debugPrint('Failed to load portfolio from Firestore: $e');
+    // Fallback: try loading from SharedPreferences immediately so UI displays data instantly (no delay)
+    bool loadedFromCache = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final localJson = prefs.getString('portfolio_data');
+
+      if (localJson != null && localJson.isNotEmpty) {
+        _state = PortfolioStateModel.fromJson(jsonDecode(localJson) as Map<String, dynamic>);
+        loadedFromCache = true;
+        print('[_initData] SharedPreferences cache found and loaded. Certs: ${_state.certifications.length}, Projects: ${_state.projects.length}');
+      } else {
+        print('[_initData] SharedPreferences cache is empty.');
       }
+    } catch (e) {
+      print('[_initData] SharedPreferences read failed: $e');
     }
 
-    // 2. Fallback to LocalStorage
-    if (!loaded) {
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        final localJson = prefs.getString('portfolio_data');
-
-        if (localJson != null && localJson.isNotEmpty) {
-          _state = PortfolioStateModel.fromJson(jsonDecode(localJson) as Map<String, dynamic>);
-          loaded = true;
-        }
-      } catch (_) {}
+    if (loadedFromCache) {
+      _restoreCertificatesBase64();
     }
 
-    // 3. Merge fail-safe: restore base64 data for certificates if empty in the database
-    if (loaded) {
-      final restoredCerts = _state.certifications.map((cert) {
-        if (cert.imageBase64.isEmpty || cert.pdfBase64.isEmpty) {
-          try {
-            final defCert = PortfolioData.certifications.firstWhere(
-              (d) => d.title == cert.title,
-            );
-            return CertificationModel(
-              title: cert.title,
-              issuingOrganization: cert.issuingOrganization,
-              imageBase64: cert.imageBase64.isEmpty ? defCert.imageBase64 : cert.imageBase64,
-              pdfBase64: cert.pdfBase64.isEmpty ? defCert.pdfBase64 : cert.pdfBase64,
-              pdfUrl: cert.pdfUrl,
-              credentialUrl: cert.credentialUrl,
-              date: cert.date,
-            );
-          } catch (_) {
-            return cert;
-          }
-        }
-        return cert;
-      }).toList();
-      _state = _state.copyWith(certifications: restoredCerts);
-    }
-
-    // 4. Default hardcoded fallback
-    if (!loaded) {
-      _loadDefaults();
-      if (_isFirebaseEnabled) {
-        _saveToFirestore(); // Run in background, do not block UI loading
-      }
-    } else {
-      // If we loaded successfully from local storage or assets but Firebase is enabled,
-      // upload this local data to Firestore to keep them in sync
-      if (_isFirebaseEnabled && !loadedFromFirestore) {
-        _saveToFirestore(); // Run in background, do not block UI loading
-      }
-    }
-
+    // Stop showing the spinner; display cached or default content right away
     _isLoading = false;
     notifyListeners();
+
+    // Now, listen to Firebase Firestore in real-time. Any changes will auto-update the UI on all devices.
+    print('[_initData] Setting up Firestore real-time listener... Firebase enabled: $_isFirebaseEnabled');
+    if (_isFirebaseEnabled) {
+      try {
+        FirebaseFirestore.instance
+            .collection('portfolios')
+            .doc('main_portfolio')
+            .snapshots()
+            .listen((doc) async {
+          print('[_initData] Firestore snapshot event received! Document exists: ${doc.exists}');
+          if (doc.exists && doc.data() != null) {
+            _state = PortfolioStateModel.fromJson(doc.data()!);
+            print('[_initData] Snapshot data parsed. Certs: ${_state.certifications.length}, Projects: ${_state.projects.length}');
+            _restoreCertificatesBase64();
+
+            // Sync with local SharedPreferences cache
+            try {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('portfolio_data', jsonEncode(_state.toJson()));
+              print('[_initData] Local SharedPreferences cache updated to match Firestore.');
+            } catch (e) {
+              print('[_initData] Failed to update SharedPreferences cache: $e');
+            }
+
+            print('[_initData] State updated from snapshot. Triggering UI rebuild (notifyListeners)...');
+            notifyListeners();
+          } else {
+            print('[_initData] Document main_portfolio does not exist in Firestore. Generating it with defaults/cache...');
+            _saveToFirestore();
+          }
+        }, onError: (e) {
+          print('[_initData] Firestore real-time listener error: $e');
+        });
+      } catch (e) {
+        print('[_initData] Failed to initialize Firestore real-time listener: $e');
+      }
+    }
+  }
+
+  void _restoreCertificatesBase64() {
+    final restoredCerts = _state.certifications.map((cert) {
+      if (cert.imageBase64.isEmpty || cert.pdfBase64.isEmpty) {
+        try {
+          final defCert = PortfolioData.certifications.firstWhere(
+            (d) => d.title == cert.title,
+          );
+          return CertificationModel(
+            title: cert.title,
+            issuingOrganization: cert.issuingOrganization,
+            imageBase64: cert.imageBase64.isEmpty ? defCert.imageBase64 : cert.imageBase64,
+            pdfBase64: cert.pdfBase64.isEmpty ? defCert.pdfBase64 : cert.pdfBase64,
+            pdfUrl: cert.pdfUrl,
+            credentialUrl: cert.credentialUrl,
+            date: cert.date,
+          );
+        } catch (_) {
+          return cert;
+        }
+      }
+      return cert;
+    }).toList();
+    _state = _state.copyWith(certifications: restoredCerts);
   }
 
   void _loadDefaults() {
@@ -341,14 +359,16 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   Future<void> _saveToFirestore() async {
+    print('[_saveToFirestore] Initiating Firestore write to portfolios/main_portfolio...');
     try {
       await FirebaseFirestore.instance
           .collection('portfolios')
           .doc('main_portfolio')
           .set(_state.toJson())
           .timeout(const Duration(seconds: 4));
+      print('[_saveToFirestore] Document portfolios/main_portfolio successfully updated in Firestore!');
     } catch (e) {
-      debugPrint('Failed to save to Firestore: $e');
+      print('[_saveToFirestore] ERROR writing to Firestore: $e');
     }
   }
 
@@ -424,14 +444,22 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // PROJECTS CRUD
   void addProject(ProjectModel project) {
-    if (!_isAdminAuthenticated) return;
+    print('[_stateProvider] addProject called for: ${project.title}');
+    if (!_isAdminAuthenticated) {
+      print('[_stateProvider] addProject REJECTED: Not authenticated.');
+      return;
+    }
     _state.projects.add(project);
     saveToLocalStorage();
     notifyListeners();
   }
 
   void editProject(int index, ProjectModel project) {
-    if (!_isAdminAuthenticated) return;
+    print('[_stateProvider] editProject called for index $index: ${project.title}');
+    if (!_isAdminAuthenticated) {
+      print('[_stateProvider] editProject REJECTED: Not authenticated.');
+      return;
+    }
     if (index >= 0 && index < _state.projects.length) {
       _state.projects[index] = project;
       saveToLocalStorage();
@@ -440,7 +468,11 @@ class PortfolioStateProvider extends ChangeNotifier {
   }
 
   void deleteProject(int index) {
-    if (!_isAdminAuthenticated) return;
+    print('[_stateProvider] deleteProject called for index $index');
+    if (!_isAdminAuthenticated) {
+      print('[_stateProvider] deleteProject REJECTED: Not authenticated.');
+      return;
+    }
     if (index >= 0 && index < _state.projects.length) {
       _state.projects.removeAt(index);
       saveToLocalStorage();
@@ -450,14 +482,22 @@ class PortfolioStateProvider extends ChangeNotifier {
 
   // CERTIFICATIONS CRUD
   void addCertification(CertificationModel cert) {
-    if (!_isAdminAuthenticated) return;
+    print('[_stateProvider] addCertification called for: ${cert.title}');
+    if (!_isAdminAuthenticated) {
+      print('[_stateProvider] addCertification REJECTED: Not authenticated.');
+      return;
+    }
     _state.certifications.add(cert);
     saveToLocalStorage();
     notifyListeners();
   }
 
   void editCertification(int index, CertificationModel cert) {
-    if (!_isAdminAuthenticated) return;
+    print('[_stateProvider] editCertification called for index $index: ${cert.title}');
+    if (!_isAdminAuthenticated) {
+      print('[_stateProvider] editCertification REJECTED: Not authenticated.');
+      return;
+    }
     if (index >= 0 && index < _state.certifications.length) {
       _state.certifications[index] = cert;
       saveToLocalStorage();

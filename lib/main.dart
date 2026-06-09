@@ -112,6 +112,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<PortfolioStateProvider>(
         builder: (context, stateProvider, child) {
+          print('[UI Rebuild] Consumer rebuilt. isLoading: ${stateProvider.isLoading}, certs count: ${stateProvider.isLoading ? 0 : stateProvider.state.certifications.length}, projects count: ${stateProvider.isLoading ? 0 : stateProvider.state.projects.length}');
           final String title = stateProvider.isLoading
               ? 'Portfolio'
               : '${stateProvider.state.profile.name} | ${stateProvider.state.profile.role}';

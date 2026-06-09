@@ -47,7 +47,7 @@ class SkillsSection extends StatelessWidget {
                 maxCrossAxisExtent: isDesktop ? 260 : 320,
                 mainAxisSpacing: 20,
                 crossAxisSpacing: 20,
-                childAspectRatio: isDesktop ? 3.0 : (size.width < 480 ? 3.6 : 2.6),
+                childAspectRatio: isDesktop ? 3.0 : (size.width < 480 ? 2.5 : 2.6),
               ),
               itemBuilder: (context, index) {
                 final skill = skillsList[index];

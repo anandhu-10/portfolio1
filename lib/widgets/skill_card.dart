@@ -35,7 +35,7 @@ class _SkillCardState extends State<SkillCard> {
           boxShadow: _isHovered 
               ? AppTheme.neonShadow(color: widget.accentColor, blur: 14.0)
               : AppTheme.glassShadow(),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
               Container(
