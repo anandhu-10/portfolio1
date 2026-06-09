@@ -42,11 +42,11 @@ class _ProjectsSectionState extends State<ProjectsSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context, stateProvider),
-          const SizedBox(height: 36),
+          const SizedBox(height: 24),
           
           // Filter Chips
           _buildFilterRow(projects),
-          const SizedBox(height: 40),
+          const SizedBox(height: 24),
           
           if (filteredProjects.isEmpty)
             const Center(

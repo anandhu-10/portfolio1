@@ -438,7 +438,7 @@ class EditSkillDialog extends StatefulWidget {
 class _EditSkillDialogState extends State<EditSkillDialog> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  double _percentage = 0.8;
+  double _percentage = 1.0;
   late IconOption _selectedIcon;
   late ColorOption _selectedColor;
 
@@ -446,7 +446,7 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialSkill?.name ?? '');
-    _percentage = widget.initialSkill?.percentage ?? 0.8;
+    _percentage = widget.initialSkill?.percentage ?? 1.0;
 
     // Resolve matching icon option
     _selectedIcon = selectableIcons.firstWhere(
@@ -494,19 +494,6 @@ class _EditSkillDialogState extends State<EditSkillDialog> {
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Skill Name (e.g. Flutter)'),
               validator: (v) => v!.isEmpty ? 'Required' : null,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Proficiency: ${(_percentage * 100).toInt()}%',
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
-            ),
-            Slider(
-              value: _percentage,
-              min: 0.0,
-              max: 1.0,
-              divisions: 20,
-              activeColor: _selectedColor.color,
-              onChanged: (val) => setState(() => _percentage = val),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<IconOption>(

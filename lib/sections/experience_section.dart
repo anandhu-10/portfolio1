@@ -29,7 +29,7 @@ class ExperienceSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context, stateProvider),
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           
           if (timelineData.isEmpty)
             const Center(

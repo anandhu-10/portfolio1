@@ -35,7 +35,7 @@ class AboutSection extends StatelessWidget {
         children: [
           // Section Title Header
           _buildHeader(context, stateProvider, about),
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           
           // Responsive Content layout
           ResponsiveLayout(

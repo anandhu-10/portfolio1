@@ -131,7 +131,7 @@ Sender email: ${_emailController.text.trim()}
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context, stateProvider, contact),
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           
           ResponsiveLayout(
             desktop: Row(

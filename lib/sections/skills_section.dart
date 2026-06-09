@@ -28,7 +28,7 @@ class SkillsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(context, stateProvider),
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           
           if (skillsList.isEmpty)
             const Center(
@@ -47,7 +47,7 @@ class SkillsSection extends StatelessWidget {
                 maxCrossAxisExtent: isDesktop ? 260 : 320,
                 mainAxisSpacing: 20,
                 crossAxisSpacing: 20,
-                childAspectRatio: isDesktop ? 1.6 : (size.width < 480 ? 2.2 : 1.6),
+                childAspectRatio: isDesktop ? 3.0 : (size.width < 480 ? 3.6 : 2.6),
               ),
               itemBuilder: (context, index) {
                 final skill = skillsList[index];
@@ -62,7 +62,6 @@ class SkillsSection extends StatelessWidget {
 
                 final widgetCard = SkillCard(
                   name: skill.name,
-                  percentage: skill.percentage,
                   // ignore: non_const_argument_for_const_parameter
                   icon: IconData(skill.iconCodePoint, fontFamily: skill.iconFontFamily),
                   accentColor: accentColor,
