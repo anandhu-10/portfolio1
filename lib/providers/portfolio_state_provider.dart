@@ -439,6 +439,16 @@ class PortfolioStateProvider extends ChangeNotifier {
       final ref = FirebaseStorage.instance.ref().child(storagePath);
       
       final uploadTask = ref.putData(bytes, metadata);
+      
+      // Subscribe to snapshotEvents to handle stream-level errors and prevent uncaught web zone exceptions
+      uploadTask.snapshotEvents.listen(
+        (snapshot) {},
+        onError: (Object e) {
+          print('[Firestore Write] Stream error caught: $e');
+        },
+        cancelOnError: true,
+      );
+
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
