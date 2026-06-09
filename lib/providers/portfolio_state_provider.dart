@@ -209,26 +209,30 @@ class PortfolioStateProvider extends ChangeNotifier {
             .doc('main_portfolio')
             .snapshots()
             .listen((doc) async {
-          print('[Snapshot Event] Firestore snapshot event received! Document exists: ${doc.exists}');
-          if (doc.exists && doc.data() != null) {
-            _state = PortfolioStateModel.fromJson(doc.data()!);
-            print('[Firestore Read] Snapshot data parsed successfully. Certs: ${_state.certifications.length}, Projects: ${_state.projects.length}');
-            _restoreCertificatesBase64();
+          try {
+            print('[Snapshot Event] Firestore snapshot event received! Document exists: ${doc.exists}');
+            if (doc.exists && doc.data() != null) {
+              _state = PortfolioStateModel.fromJson(doc.data()!);
+              print('[Firestore Read] Snapshot data parsed successfully. Certs: ${_state.certifications.length}, Projects: ${_state.projects.length}');
+              _restoreCertificatesBase64();
 
-            // Sync with local SharedPreferences cache
-            try {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('portfolio_data', jsonEncode(_state.toJson()));
-              print('[State Update] Local SharedPreferences cache updated to match Firestore.');
-            } catch (e) {
-              print('[State Update] Failed to update SharedPreferences cache: $e');
+              // Sync with local SharedPreferences cache
+              try {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('portfolio_data', jsonEncode(_state.toJson()));
+                print('[State Update] Local SharedPreferences cache updated to match Firestore.');
+              } catch (e) {
+                print('[State Update] Failed to update SharedPreferences cache: $e');
+              }
+
+              print('[State Update] State updated from snapshot. Triggering UI rebuild (notifyListeners)...');
+              notifyListeners();
+            } else {
+              print('[Snapshot Event] Document main_portfolio does not exist in Firestore. Generating it with defaults/cache...');
+              await _saveToFirestore();
             }
-
-            print('[State Update] State updated from snapshot. Triggering UI rebuild (notifyListeners)...');
-            notifyListeners();
-          } else {
-            print('[Snapshot Event] Document main_portfolio does not exist in Firestore. Generating it with defaults/cache...');
-            _saveToFirestore();
+          } catch (e) {
+            print('[Snapshot Event] ERROR processing Firestore snapshot data: $e');
           }
         }, onError: (Object e) {
           print('[Snapshot Event] Firestore real-time listener error: $e');
