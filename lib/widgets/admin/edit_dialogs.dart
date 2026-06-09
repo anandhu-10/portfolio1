@@ -162,10 +162,10 @@ class EditProfileDialog extends StatefulWidget {
   final Future<void> Function(ProfileModel profile) onSave;
 
   const EditProfileDialog({
-    key,
+    super.key,
     required this.initialProfile,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<EditProfileDialog> createState() => _EditProfileDialogState();
@@ -301,10 +301,10 @@ class EditAboutDialog extends StatefulWidget {
   final Future<void> Function(AboutModel about) onSave;
 
   const EditAboutDialog({
-    key,
+    super.key,
     required this.initialAbout,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<EditAboutDialog> createState() => _EditAboutDialogState();
@@ -516,10 +516,10 @@ class EditSkillDialog extends StatefulWidget {
   final Future<void> Function(SkillModel skill) onSave;
 
   const EditSkillDialog({
-    key,
+    super.key,
     this.initialSkill,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<EditSkillDialog> createState() => _EditSkillDialogState();
@@ -659,10 +659,10 @@ class EditProjectDialog extends StatefulWidget {
   final Future<void> Function(ProjectModel project) onSave;
 
   const EditProjectDialog({
-    key,
+    super.key,
     this.initialProject,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<EditProjectDialog> createState() => _EditProjectDialogState();
@@ -831,10 +831,10 @@ class EditCertificationDialog extends StatefulWidget {
   final Future<void> Function(CertificationModel cert) onSave;
 
   const EditCertificationDialog({
-    key,
+    super.key,
     this.initialCert,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<EditCertificationDialog> createState() => _EditCertificationDialogState();
@@ -967,10 +967,10 @@ class EditExperienceDialog extends StatefulWidget {
   final Future<void> Function(ExperienceModel exp) onSave;
 
   const EditExperienceDialog({
-    key,
+    super.key,
     this.initialExperience,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<EditExperienceDialog> createState() => _EditExperienceDialogState();
@@ -1112,10 +1112,10 @@ class EditContactDialog extends StatefulWidget {
   final Future<void> Function(ContactModel contact) onSave;
 
   const EditContactDialog({
-    key,
+    super.key,
     required this.initialContact,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<EditContactDialog> createState() => _EditContactDialogState();

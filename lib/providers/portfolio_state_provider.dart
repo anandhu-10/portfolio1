@@ -228,7 +228,7 @@ class PortfolioStateProvider extends ChangeNotifier {
             print('[Snapshot Event] Document main_portfolio does not exist in Firestore. Generating it with defaults/cache...');
             _saveToFirestore();
           }
-        }, onError: (e) {
+        }, onError: (Object e) {
           print('[Snapshot Event] Firestore real-time listener error: $e');
         });
       } catch (e) {
