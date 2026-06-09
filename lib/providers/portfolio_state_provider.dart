@@ -442,6 +442,12 @@ class PortfolioStateProvider extends ChangeNotifier {
       
       final uploadTask = ref.putData(bytes, metadata);
       
+      // Attach a catchError handler to the future immediately to prevent uncaught exceptions
+      final safeFuture = uploadTask.catchError((Object e) {
+        print('[Firestore Write] Future error caught: $e');
+        throw e;
+      });
+
       // Subscribe to snapshotEvents to handle stream-level errors and prevent uncaught web zone exceptions
       uploadTask.snapshotEvents.listen(
         (snapshot) {},
@@ -451,7 +457,7 @@ class PortfolioStateProvider extends ChangeNotifier {
         cancelOnError: true,
       );
 
-      final snapshot = await uploadTask;
+      final snapshot = await safeFuture;
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
       print('[Firestore Write] Upload success. Download URL: $downloadUrl');
