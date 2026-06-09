@@ -18,6 +18,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   int _failedAttempts = 0;
   DateTime? _lockoutUntil;
   bool _isLockoutActive = false;
+  bool _firebaseStorageAvailable = true;
 
   PortfolioStateModel get state => _state;
   bool get isLoading => _isLoading;
@@ -26,6 +27,7 @@ class PortfolioStateProvider extends ChangeNotifier {
   int get failedAttempts => _failedAttempts;
   DateTime? get lockoutUntil => _lockoutUntil;
   bool get isLockoutActive => _isLockoutActive;
+  bool get firebaseStorageAvailable => _firebaseStorageAvailable;
 
   void checkLockout() {
     if (_lockoutUntil != null && DateTime.now().isBefore(_lockoutUntil!)) {
@@ -418,8 +420,8 @@ class PortfolioStateProvider extends ChangeNotifier {
       return base64DataUrl;
     }
 
-    if (!_isFirebaseEnabled) {
-      print('[Firestore Write] Firebase not enabled. Skipping storage upload, using Base64 directly.');
+    if (!_isFirebaseEnabled || !_firebaseStorageAvailable) {
+      print('[Firestore Write] Firebase not enabled or Storage unavailable. Skipping storage upload, using Base64 directly.');
       return base64DataUrl;
     }
 
@@ -455,7 +457,9 @@ class PortfolioStateProvider extends ChangeNotifier {
       print('[Firestore Write] Upload success. Download URL: $downloadUrl');
       return downloadUrl;
     } catch (e) {
-      print('[Firestore Write] WARNING: Firebase Storage upload failed: $e. Using Base64 payload directly.');
+      print('[Firestore Write] WARNING: Firebase Storage upload failed: $e. Falling back to Base64 payload directly.');
+      _firebaseStorageAvailable = false;
+      notifyListeners();
       return base64DataUrl;
     }
   }
