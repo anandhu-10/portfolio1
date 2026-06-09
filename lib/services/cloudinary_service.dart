@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 class CloudinaryService {
   // Cloudinary credentials configuration
   // IMPORTANT: Replace these with your own Cloudinary Cloud Name and Unsigned Upload Preset.
-  static const String cloudName = 'myportfolio-21019'; // Your Cloudinary Cloud Name
-  static const String uploadPreset = 'portfolio_preset'; // Your Unsigned Upload Preset name
+  static const String cloudName = 'dtywpkwy0'; // Your Cloudinary Cloud Name
+  static const String uploadPreset = 'portfolio_uploads'; // Your Unsigned Upload Preset name
 
   /// Uploads a base64 image or file to Cloudinary.
   /// [base64DataUrl] must be a valid Data URL (e.g. data:image/png;base64,...)
@@ -28,7 +28,7 @@ class CloudinaryService {
         resourceType = 'raw';
       }
 
-      final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/upload');
+      final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/$resourceType/upload');
       
       // Build the request fields
       final request = http.MultipartRequest('POST', url)
